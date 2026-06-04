@@ -1,0 +1,86 @@
+import type { AdminOrderDetail } from '@/features/admin/orders/order-admin.queries';
+import { STATUS_LABEL_AR } from '@/features/admin/orders/order-admin.validation';
+import { formatCurrency, formatDateTime } from '@/features/admin/shared/admin-format';
+
+export function PrintableInvoice({
+  order,
+  invoiceNumber,
+  qrDataUrl
+}: {
+  order: AdminOrderDetail;
+  invoiceNumber: string;
+  qrDataUrl: string;
+}) {
+  return (
+    <div className="printSheet" dir="rtl">
+      <header className="printHeader">
+        <div className="printBrand">
+          <span className="printBrandMark">باب<br />الحارة</span>
+          <div>
+            <strong>باب الحارة</strong>
+            <span>Bab Al Hara Boutique</span>
+          </div>
+        </div>
+        <div className="printDocMeta">
+          <h1>فاتورة طلب · COD Invoice</h1>
+          <div>رقم الفاتورة: <strong>{invoiceNumber}</strong></div>
+          <div>رقم الطلب: <strong>{order.orderNumber}</strong></div>
+          <div>التاريخ: {formatDateTime(order.createdAt)}</div>
+          <div>الحالة: {STATUS_LABEL_AR[order.status]}</div>
+        </div>
+      </header>
+
+      <section className="printParties">
+        <div>
+          <h2>بيانات العميل</h2>
+          <div>{order.customerName}</div>
+          <div>{order.customerPhone}</div>
+          <div>{order.city} · {order.area}</div>
+          <div>{order.address}</div>
+        </div>
+        <div className="printQr">
+          <img src={qrDataUrl} alt="QR" width={120} height={120} />
+          <span>تتبع الطلب</span>
+        </div>
+      </section>
+
+      <table className="printTable">
+        <thead>
+          <tr>
+            <th>المنتج</th>
+            <th>SKU</th>
+            <th>الخيار</th>
+            <th>الكمية</th>
+            <th>السعر</th>
+            <th>الإجمالي</th>
+          </tr>
+        </thead>
+        <tbody>
+          {order.items.map((item) => (
+            <tr key={item.id}>
+              <td>{item.productName}</td>
+              <td>{item.sku ?? '—'}</td>
+              <td>{[item.colorName, item.size].filter(Boolean).join(' · ') || '—'}</td>
+              <td>{item.quantity}</td>
+              <td>{formatCurrency(item.unitPrice)}</td>
+              <td>{formatCurrency(item.total)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="printTotals">
+        <div><span>المجموع الفرعي</span><strong>{formatCurrency(order.subtotal)}</strong></div>
+        <div><span>التوصيل</span><strong>{order.deliveryFee === 0 ? 'مجاني' : formatCurrency(order.deliveryFee)}</strong></div>
+        {order.discount > 0 && <div><span>الخصم</span><strong>−{formatCurrency(order.discount)}</strong></div>}
+        <div className="grand"><span>الإجمالي</span><strong>{formatCurrency(order.total)}</strong></div>
+        <div className="printPayment">طريقة الدفع: الدفع عند الاستلام</div>
+      </div>
+
+      <footer className="printFooter">
+        <p>الدفع عند الاستلام · يرجى التأكد من محتويات الطلب عند الاستلام.</p>
+        <p>شكراً لتسوقك من باب الحارة 🤎</p>
+      </footer>
+    </div>
+  );
+}

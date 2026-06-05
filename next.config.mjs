@@ -1,5 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Ensure the Prisma query-engine binaries are bundled into the serverless
+  // functions (Netlify/Lambda). Without this the engine can be missing at
+  // runtime even when generated, causing Server Component render failures.
+  outputFileTracingIncludes: {
+    '/**': ['./node_modules/.prisma/client/**/*']
+  },
   images: {
     remotePatterns: [
       {

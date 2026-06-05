@@ -47,12 +47,12 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
     <div>
       <div className="adminPageHeader">
         <div>
-          <h1>Edit product</h1>
+          <h1>تعديل المنتج</h1>
           <p className="adminMuted">{product.name}</p>
         </div>
         <div className="adminBtnRow">
-          <Link href={`/product/${product.slug}`} className="adminBtn adminBtnGhost" target="_blank">View storefront</Link>
-          <Link href="/admin/products" className="adminBtn adminBtnGhost">← Back</Link>
+          <Link href={`/product/${product.slug}`} className="adminBtn adminBtnGhost" target="_blank">عرض في المتجر</Link>
+          <Link href="/admin/products" className="adminBtn adminBtnGhost">→ رجوع</Link>
         </div>
       </div>
       <ProductForm mode="edit" productId={product.id} categories={categories} initial={initial} />

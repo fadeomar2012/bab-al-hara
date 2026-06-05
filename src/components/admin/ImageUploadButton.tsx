@@ -51,7 +51,7 @@ export function ImageUploadButton({
         disabled={isUploading}
         aria-busy={isUploading}
       >
-        {isUploading ? 'جاري رفع الصورة...' : label}
+        {isUploading ? 'جارٍ الرفع…' : label}
       </button>
       {status === 'success' && <span className="adminUploaderOk">تم رفع الصورة</span>}
       {status === 'error' && error && <span className="adminUploaderError">{error}</span>}

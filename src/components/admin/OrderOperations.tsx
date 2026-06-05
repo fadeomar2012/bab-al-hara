@@ -42,15 +42,15 @@ export function OrderOperations({
   return (
     <div>
       <div className="adminBtnRow">
-        <Link href={`/admin/orders/${orderId}/invoice`} className="adminBtn adminBtnPrimary">🧾 Print invoice</Link>
-        <Link href={`/admin/orders/${orderId}/packing-slip`} className="adminBtn">📦 Print packing slip</Link>
-        <button type="button" className="adminBtn adminBtnGhost" onClick={copySummary}>{copied ? 'Copied!' : 'Copy summary'}</button>
+        <Link href={`/admin/orders/${orderId}/invoice`} className="adminBtn adminBtnPrimary">🧾 طباعة الفاتورة</Link>
+        <Link href={`/admin/orders/${orderId}/packing-slip`} className="adminBtn">📦 طباعة قائمة التغليف</Link>
+        <button type="button" className="adminBtn adminBtnGhost" onClick={copySummary}>{copied ? 'تم النسخ!' : 'نسخ الملخص'}</button>
         <button type="button" className={`adminBtn ${isPacked ? 'adminBtnGhost' : 'adminBtnPrimary'}`} onClick={togglePacked} disabled={pending}>
-          {isPacked ? 'Mark not packed' : 'Mark packed'}
+          {isPacked ? 'تحديد كغير مُغلَّف' : 'تحديد كمُغلَّف'}
         </button>
       </div>
       <p className="adminMuted" style={{ marginTop: 10 }}>
-        {isPacked ? 'Packed ✓ · ' : ''}Invoice printed {invoicePrintCount}× · Packing slip printed {packingSlipPrintCount}×
+        {isPacked ? 'مُغلَّف ✓ · ' : ''}طُبعت الفاتورة {invoicePrintCount}× · طُبعت قائمة التغليف {packingSlipPrintCount}×
       </p>
     </div>
   );

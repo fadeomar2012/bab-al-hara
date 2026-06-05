@@ -39,7 +39,7 @@ export function variantStockState(quantity: number, lowStockThreshold: number): 
 }
 
 export const STOCK_STATE_LABEL: Record<ProductStockState, string> = {
-  'in-stock': 'In Stock',
-  'low-stock': 'Low Stock',
-  'out-of-stock': 'Out of Stock'
+  'in-stock': 'متوفر',
+  'low-stock': 'مخزون منخفض',
+  'out-of-stock': 'نفد المخزون'
 };

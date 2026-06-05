@@ -14,8 +14,8 @@ export default async function AdminInventoryPage({ searchParams }: { searchParam
     <div>
       <div className="adminPageHeader">
         <div>
-          <h1>Inventory</h1>
-          <p className="adminMuted">{rows.length} variant{rows.length === 1 ? '' : 's'}. Quantity changes are logged as manual adjustments.</p>
+          <h1>المخزون</h1>
+          <p className="adminMuted">{rows.length} خيار. تُسجَّل تغييرات الكمية كتعديلات يدوية.</p>
         </div>
       </div>
       <InventoryFilters />

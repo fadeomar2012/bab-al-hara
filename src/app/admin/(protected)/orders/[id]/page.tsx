@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAdminOrderById } from '@/features/admin/orders/order-admin.queries';
-import { STATUS_LABEL } from '@/features/admin/orders/order-admin.validation';
+import { STATUS_LABEL_AR } from '@/features/admin/orders/order-admin.validation';
 import { formatCurrency, formatDateTime } from '@/features/admin/shared/admin-format';
 import { OrderStatusBadge } from '@/components/admin/OrderStatusBadge';
 import { OrderStatusActions } from '@/components/admin/OrderStatusActions';
@@ -16,11 +16,11 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
   if (!order) notFound();
 
   const summaryText = [
-    `Order ${order.orderNumber} (${STATUS_LABEL[order.status]})`,
+    `الطلب ${order.orderNumber} (${STATUS_LABEL_AR[order.status]})`,
     `${order.customerName} · ${order.customerPhone}`,
     `${order.city} · ${order.area} · ${order.address}`,
     ...order.items.map((item) => `- ${item.productName} ×${item.quantity} = ${formatCurrency(item.total)}`),
-    `Total (COD): ${formatCurrency(order.total)}`
+    `الإجمالي (الدفع عند الاستلام): ${formatCurrency(order.total)}`
   ].join('\n');
 
   return (
@@ -28,13 +28,13 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       <div className="adminPageHeader">
         <div>
           <h1>{order.orderNumber}</h1>
-          <p className="adminMuted">Placed {formatDateTime(order.createdAt)} · <OrderStatusBadge status={order.status} /></p>
+          <p className="adminMuted">تاريخ الطلب {formatDateTime(order.createdAt)} · <OrderStatusBadge status={order.status} /></p>
         </div>
-        <Link href="/admin/orders" className="adminBtn adminBtnGhost">← Back</Link>
+        <Link href="/admin/orders" className="adminBtn adminBtnGhost">→ رجوع</Link>
       </div>
 
       <div className="adminCard">
-        <div className="adminCardHeader"><h2>Operations</h2></div>
+        <div className="adminCardHeader"><h2>العمليات</h2></div>
         <OrderOperations
           orderId={order.id}
           isPacked={order.isPacked}
@@ -45,12 +45,12 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       </div>
 
       <div className="adminCard">
-        <div className="adminCardHeader"><h2>Update status</h2></div>
+        <div className="adminCardHeader"><h2>تحديث الحالة</h2></div>
         <OrderStatusActions orderId={order.id} status={order.status} />
       </div>
 
       <div className="adminCard">
-        <div className="adminCardHeader"><h2>Notes</h2></div>
+        <div className="adminCardHeader"><h2>ملاحظات</h2></div>
         <OrderNotesForm
           orderId={order.id}
           internalNote={order.internalNote}
@@ -60,24 +60,24 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       </div>
 
       <div className="adminCard">
-        <div className="adminCardHeader"><h2>Customer & delivery</h2></div>
+        <div className="adminCardHeader"><h2>العميل والتوصيل</h2></div>
         <div className="adminFormGrid two">
-          <div className="adminField"><span className="adminFieldLabel">Name</span><div>{order.customerName}</div></div>
-          <div className="adminField"><span className="adminFieldLabel">Phone</span><div>{order.customerPhone}</div></div>
-          <div className="adminField"><span className="adminFieldLabel">City</span><div>{order.city}</div></div>
-          <div className="adminField"><span className="adminFieldLabel">Area</span><div>{order.area}</div></div>
-          <div className="adminField spanTwo"><span className="adminFieldLabel">Address</span><div>{order.address}</div></div>
-          {order.notes && <div className="adminField spanTwo"><span className="adminFieldLabel">Customer notes</span><div>{order.notes}</div></div>}
-          {order.cancelReason && <div className="adminField spanTwo"><span className="adminFieldLabel">Cancel reason</span><div>{order.cancelReason}</div></div>}
+          <div className="adminField"><span className="adminFieldLabel">الاسم</span><div>{order.customerName}</div></div>
+          <div className="adminField"><span className="adminFieldLabel">الهاتف</span><div>{order.customerPhone}</div></div>
+          <div className="adminField"><span className="adminFieldLabel">المدينة</span><div>{order.city}</div></div>
+          <div className="adminField"><span className="adminFieldLabel">المنطقة</span><div>{order.area}</div></div>
+          <div className="adminField spanTwo"><span className="adminFieldLabel">العنوان</span><div>{order.address}</div></div>
+          {order.notes && <div className="adminField spanTwo"><span className="adminFieldLabel">ملاحظات العميل</span><div>{order.notes}</div></div>}
+          {order.cancelReason && <div className="adminField spanTwo"><span className="adminFieldLabel">سبب الإلغاء</span><div>{order.cancelReason}</div></div>}
         </div>
       </div>
 
       <div className="adminCard">
-        <div className="adminCardHeader"><h2>Items</h2></div>
+        <div className="adminCardHeader"><h2>العناصر</h2></div>
         <div className="adminTableWrap">
           <table className="adminTable" style={{ minWidth: 520 }}>
             <thead>
-              <tr><th>Product</th><th>Variant</th><th>Qty</th><th>Unit</th><th>Total</th></tr>
+              <tr><th>المنتج</th><th>الخيار</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr>
             </thead>
             <tbody>
               {order.items.map((item) => (
@@ -98,20 +98,20 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
           </table>
         </div>
         <div className="summaryDivider" style={{ margin: '14px 0' }} />
-        <div className="adminTotalsRow"><span>Subtotal</span><strong>{formatCurrency(order.subtotal)}</strong></div>
-        <div className="adminTotalsRow"><span>Delivery</span><strong>{order.deliveryFee === 0 ? 'Free' : formatCurrency(order.deliveryFee)}</strong></div>
-        {order.discount > 0 && <div className="adminTotalsRow"><span>Discount</span><strong>−{formatCurrency(order.discount)}</strong></div>}
-        <div className="adminTotalsRow grand"><span>Total (COD)</span><strong>{formatCurrency(order.total)}</strong></div>
+        <div className="adminTotalsRow"><span>المجموع الفرعي</span><strong>{formatCurrency(order.subtotal)}</strong></div>
+        <div className="adminTotalsRow"><span>التوصيل</span><strong>{order.deliveryFee === 0 ? 'مجاني' : formatCurrency(order.deliveryFee)}</strong></div>
+        {order.discount > 0 && <div className="adminTotalsRow"><span>الخصم</span><strong>−{formatCurrency(order.discount)}</strong></div>}
+        <div className="adminTotalsRow grand"><span>الإجمالي (الدفع عند الاستلام)</span><strong>{formatCurrency(order.total)}</strong></div>
       </div>
 
       <div className="adminCard">
-        <div className="adminCardHeader"><h2>Status timeline</h2></div>
+        <div className="adminCardHeader"><h2>سجل الحالات</h2></div>
         <ol className="adminTimeline">
           {order.statusHistory.map((entry) => (
             <li key={entry.id}>
               <span className="adminTimelineDot" />
               <div>
-                <strong>{entry.fromStatus ? `${STATUS_LABEL[entry.fromStatus]} → ` : ''}{STATUS_LABEL[entry.toStatus]}</strong>
+                <strong>{entry.fromStatus ? `${STATUS_LABEL_AR[entry.fromStatus]} → ` : ''}{STATUS_LABEL_AR[entry.toStatus]}</strong>
                 <div className="adminMuted" style={{ fontSize: 12 }}>{formatDateTime(entry.createdAt)}{entry.note ? ` · ${entry.note}` : ''}</div>
               </div>
             </li>
@@ -121,7 +121,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
 
       {order.inventoryLogs.length > 0 && (
         <div className="adminCard">
-          <div className="adminCardHeader"><h2>Inventory log</h2></div>
+          <div className="adminCardHeader"><h2>سجل المخزون</h2></div>
           <div className="adminCardList">
             {order.inventoryLogs.map((log) => (
               <div key={log.id} className="adminRecordMeta">

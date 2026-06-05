@@ -16,7 +16,7 @@ export function ProductRowActions({ id, slug, status }: { id: string; slug: stri
     startTransition(async () => {
       const result = await setProductStatusAction(id, next);
       if (!result.ok) {
-        setError(result.message ?? 'Could not update status.');
+        setError(result.message ?? 'تعذّر تحديث الحالة.');
         return;
       }
       router.refresh();
@@ -24,23 +24,25 @@ export function ProductRowActions({ id, slug, status }: { id: string; slug: stri
   }
 
   return (
-    <div className="adminBtnRow">
-      <Link href={`/admin/products/${id}/edit`} className="adminBtn adminBtnSm">Edit</Link>
-      <Link href={`/product/${slug}`} className="adminBtn adminBtnGhost adminBtnSm" target="_blank">View</Link>
+    <div className="adminRowActions">
+      <Link href={`/admin/products/${id}/edit`} className="adminBtn adminBtnSm">تعديل</Link>
+      <Link href={`/product/${slug}`} className="adminBtn adminBtnGhost adminBtnSm" target="_blank">عرض</Link>
+
+      <span className="adminRowActionsSep" aria-hidden="true" />
 
       {status !== 'ACTIVE' && (
         <button type="button" className="adminBtn adminBtnGhost adminBtnSm" disabled={pending} onClick={() => changeStatus('ACTIVE')}>
-          Set Active
+          تفعيل
         </button>
       )}
       {status !== 'DRAFT' && (
         <button type="button" className="adminBtn adminBtnGhost adminBtnSm" disabled={pending} onClick={() => changeStatus('DRAFT')}>
-          {status === 'ARCHIVED' ? 'Restore (Draft)' : 'Set Draft'}
+          {status === 'ARCHIVED' ? 'استعادة' : 'مسودة'}
         </button>
       )}
       {status !== 'ARCHIVED' && (
         <button type="button" className="adminBtn adminBtnDanger adminBtnSm" disabled={pending} onClick={() => changeStatus('ARCHIVED')}>
-          Archive
+          أرشفة
         </button>
       )}
 

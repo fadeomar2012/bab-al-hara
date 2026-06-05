@@ -1,12 +1,13 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { IconSearch } from './Icons';
+import { IconSearch, IconX } from './Icons';
 
 export function SearchBar({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
   const [query, setQuery] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -17,8 +18,26 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
   return (
     <form className={`searchBar ${compact ? 'compact' : ''}`} onSubmit={onSubmit} role="search">
       <IconSearch size={18} />
-      <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ابحثي عن شنط، عطور، هدايا..." />
-      <button type="submit">بحث</button>
+      <input
+        ref={inputRef}
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        placeholder="ابحثي عن شنط، عطور، هدايا..."
+      />
+      {query ? (
+        <button
+          type="button"
+          className="searchClear"
+          aria-label="مسح البحث"
+          onClick={() => {
+            setQuery('');
+            inputRef.current?.focus();
+          }}
+        >
+          <IconX size={16} />
+        </button>
+      ) : null}
+      <button type="submit" className="searchSubmit">بحث</button>
     </form>
   );
 }

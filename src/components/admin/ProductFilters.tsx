@@ -35,36 +35,36 @@ export function ProductFilters({ categories }: { categories: CategoryOption[] })
       <input
         className="adminInput"
         type="search"
-        placeholder="Search name, slug or SKU…"
+        placeholder="ابحث بالاسم أو الـ slug أو الـ SKU…"
         value={q}
         onChange={(event) => setQ(event.target.value)}
-        aria-label="Search products"
+        aria-label="بحث في المنتجات"
       />
-      <select className="adminInput" value={searchParams.get('status') ?? 'ALL'} onChange={(event) => update({ status: event.target.value })} aria-label="Filter by status">
-        <option value="ALL">All statuses</option>
-        <option value="ACTIVE">Active</option>
-        <option value="DRAFT">Draft</option>
-        <option value="ARCHIVED">Archived</option>
+      <select className="adminInput" value={searchParams.get('status') ?? 'ALL'} onChange={(event) => update({ status: event.target.value })} aria-label="تصفية حسب الحالة">
+        <option value="ALL">كل الحالات</option>
+        <option value="ACTIVE">نشط</option>
+        <option value="DRAFT">مسودة</option>
+        <option value="ARCHIVED">مؤرشف</option>
       </select>
-      <select className="adminInput" value={searchParams.get('category') ?? 'ALL'} onChange={(event) => update({ category: event.target.value })} aria-label="Filter by category">
-        <option value="ALL">All categories</option>
+      <select className="adminInput" value={searchParams.get('category') ?? 'ALL'} onChange={(event) => update({ category: event.target.value })} aria-label="تصفية حسب التصنيف">
+        <option value="ALL">كل التصنيفات</option>
         {categories.map((category) => (
           <option key={category.id} value={category.id}>
             {category.name}
           </option>
         ))}
       </select>
-      <select className="adminInput" value={searchParams.get('stock') ?? 'all'} onChange={(event) => update({ stock: event.target.value })} aria-label="Filter by stock">
-        <option value="all">All stock</option>
-        <option value="in-stock">In stock</option>
-        <option value="low-stock">Low stock</option>
-        <option value="out-of-stock">Out of stock</option>
+      <select className="adminInput" value={searchParams.get('stock') ?? 'all'} onChange={(event) => update({ stock: event.target.value })} aria-label="تصفية حسب المخزون">
+        <option value="all">كل المخزون</option>
+        <option value="in-stock">متوفر</option>
+        <option value="low-stock">مخزون منخفض</option>
+        <option value="out-of-stock">نفد المخزون</option>
       </select>
-      <select className="adminInput" value={searchParams.get('sort') ?? 'updated'} onChange={(event) => update({ sort: event.target.value })} aria-label="Sort products">
-        <option value="updated">Recently updated</option>
-        <option value="newest">Newest</option>
-        <option value="name">Name (A–Z)</option>
-        <option value="stock-asc">Stock (low → high)</option>
+      <select className="adminInput" value={searchParams.get('sort') ?? 'updated'} onChange={(event) => update({ sort: event.target.value })} aria-label="ترتيب المنتجات">
+        <option value="updated">الأحدث تحديثاً</option>
+        <option value="newest">الأحدث</option>
+        <option value="name">الاسم (أ–ي)</option>
+        <option value="stock-asc">المخزون (من الأقل إلى الأعلى)</option>
       </select>
     </form>
   );

@@ -29,10 +29,8 @@ export default async function HomePage() {
         <div className="categoryShowcaseGrid">
           {catalog.categories.map((category) => (
             <Link href={`/category/${category.slug}`} className="categoryShowcaseCard" key={category.slug}>
-              <div className="categoryShowcaseImage">
-                <img src={category.imageUrl ?? '/mock-products/gift-box.svg'} alt={category.name} />
-              </div>
-              <div>
+              <img className="categoryShowcaseImg" src={category.imageUrl ?? '/mock-products/gift-box.svg'} alt={category.name} />
+              <div className="categoryShowcaseOverlay">
                 <strong>{category.name}</strong>
                 <span>{category.productCount ?? 0} منتجات</span>
               </div>

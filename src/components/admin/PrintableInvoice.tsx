@@ -1,3 +1,4 @@
+import { BrandMark } from '@/components/BrandLogo';
 import type { AdminOrderDetail } from '@/features/admin/orders/order-admin.queries';
 import { STATUS_LABEL_AR } from '@/features/admin/orders/order-admin.validation';
 import { formatCurrency, formatDateTime } from '@/features/admin/shared/admin-format';
@@ -15,7 +16,7 @@ export function PrintableInvoice({
     <div className="printSheet" dir="rtl">
       <header className="printHeader">
         <div className="printBrand">
-          <span className="printBrandMark">باب<br />الحارة</span>
+          <span className="printBrandMark"><BrandMark size={34} /></span>
           <div>
             <strong>باب الحارة</strong>
             <span>Bab Al Hara Boutique</span>

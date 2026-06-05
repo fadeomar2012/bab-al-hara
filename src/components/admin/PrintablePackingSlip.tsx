@@ -1,3 +1,4 @@
+import { BrandMark } from '@/components/BrandLogo';
 import type { AdminOrderDetail } from '@/features/admin/orders/order-admin.queries';
 import { formatDateTime } from '@/features/admin/shared/admin-format';
 
@@ -14,7 +15,7 @@ export function PrintablePackingSlip({
     <div className="printSheet" dir="rtl">
       <header className="printHeader">
         <div className="printBrand">
-          <span className="printBrandMark">باب<br />الحارة</span>
+          <span className="printBrandMark"><BrandMark size={34} /></span>
           <div>
             <strong>باب الحارة</strong>
             <span>ورقة تجهيز الطلب</span>

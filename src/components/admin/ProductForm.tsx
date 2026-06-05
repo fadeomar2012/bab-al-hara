@@ -216,20 +216,20 @@ export function ProductForm({
     <form className="adminForm" onSubmit={handleSubmit}>
       {formMessage && <div className="adminAlert isError" role="alert">{formMessage}</div>}
       {status === 'ACTIVE' && activeVariantCount === 0 && (
-        <div className="adminAlert isInfo">An ACTIVE product needs at least one active variant before it can be saved.</div>
+        <div className="adminAlert isInfo">يحتاج المنتج النشط إلى خيار نشط واحد على الأقل قبل أن يُحفظ.</div>
       )}
 
       {/* Basics */}
       <div className="adminCard">
-        <div className="adminCardHeader"><h2>Product basics</h2></div>
+        <div className="adminCardHeader"><h2>أساسيات المنتج</h2></div>
         <div className="adminFormGrid two">
           <div className="adminField">
-            <label htmlFor="p-name">Name *</label>
+            <label htmlFor="p-name">الاسم *</label>
             <input id="p-name" className={errorFor('name') ? 'hasError' : ''} value={name} onChange={(e) => onNameChange(e.target.value)} required />
             {errorFor('name') && <span className="adminFieldError">{errorFor('name')}</span>}
           </div>
           <div className="adminField">
-            <label htmlFor="p-slug">Slug *</label>
+            <label htmlFor="p-slug">الـ slug *</label>
             <input
               id="p-slug"
               className={errorFor('slug') ? 'hasError' : ''}
@@ -238,81 +238,81 @@ export function ProductForm({
               onBlur={(e) => setSlug(slugify(e.target.value))}
               required
             />
-            {errorFor('slug') ? <span className="adminFieldError">{errorFor('slug')}</span> : <span className="adminFieldHint">Used in the storefront URL. Auto-filled from the name.</span>}
+            {errorFor('slug') ? <span className="adminFieldError">{errorFor('slug')}</span> : <span className="adminFieldHint">يُستخدم في رابط المتجر. يُملأ تلقائياً من الاسم.</span>}
           </div>
           <div className="adminField spanTwo">
-            <label htmlFor="p-subtitle">Subtitle</label>
+            <label htmlFor="p-subtitle">العنوان الفرعي</label>
             <input id="p-subtitle" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
           </div>
           <div className="adminField spanTwo">
-            <label htmlFor="p-description">Description *</label>
+            <label htmlFor="p-description">الوصف *</label>
             <textarea id="p-description" className={errorFor('description') ? 'hasError' : ''} value={description} onChange={(e) => setDescription(e.target.value)} required />
             {errorFor('description') && <span className="adminFieldError">{errorFor('description')}</span>}
           </div>
           <div className="adminField">
-            <label htmlFor="p-details">Details (one per line)</label>
-            <textarea id="p-details" value={details} onChange={(e) => setDetails(e.target.value)} placeholder={'Soft material\nGift ready'} />
+            <label htmlFor="p-details">التفاصيل (واحدة في كل سطر)</label>
+            <textarea id="p-details" value={details} onChange={(e) => setDetails(e.target.value)} placeholder={'خامة ناعمة\nجاهز كهدية'} />
           </div>
           <div className="adminField">
-            <label htmlFor="p-care">Care instructions</label>
+            <label htmlFor="p-care">تعليمات العناية</label>
             <textarea id="p-care" value={careInstructions} onChange={(e) => setCareInstructions(e.target.value)} />
           </div>
           <div className="adminField">
-            <label htmlFor="p-brand">Brand</label>
+            <label htmlFor="p-brand">العلامة التجارية</label>
             <input id="p-brand" value={brand} onChange={(e) => setBrand(e.target.value)} />
           </div>
           <div className="adminField">
-            <label htmlFor="p-tags">Tags (comma separated)</label>
-            <input id="p-tags" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="gift, summer" />
+            <label htmlFor="p-tags">الوسوم (مفصولة بفواصل)</label>
+            <input id="p-tags" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="هدية، صيف" />
           </div>
         </div>
       </div>
 
       {/* Pricing & status */}
       <div className="adminCard">
-        <div className="adminCardHeader"><h2>Pricing & status</h2></div>
+        <div className="adminCardHeader"><h2>التسعير والحالة</h2></div>
         <div className="adminFormGrid two">
           <div className="adminField">
-            <label htmlFor="p-category">Category *</label>
+            <label htmlFor="p-category">التصنيف *</label>
             <select id="p-category" className={errorFor('categoryId') ? 'hasError' : ''} value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required>
-              <option value="">Select a category…</option>
+              <option value="">اختر تصنيفاً…</option>
               {categories.map((category) => (
-                <option key={category.id} value={category.id}>{category.name}{category.isActive ? '' : ' (disabled)'}</option>
+                <option key={category.id} value={category.id}>{category.name}{category.isActive ? '' : ' (معطّل)'}</option>
               ))}
             </select>
             {errorFor('categoryId') && <span className="adminFieldError">{errorFor('categoryId')}</span>}
           </div>
           <div className="adminField">
-            <label htmlFor="p-status">Status *</label>
+            <label htmlFor="p-status">الحالة *</label>
             <select id="p-status" className={errorFor('status') ? 'hasError' : ''} value={status} onChange={(e) => setStatus(e.target.value as ProductFormInitial['status'])}>
-              <option value="DRAFT">Draft</option>
-              <option value="ACTIVE">Active</option>
-              <option value="ARCHIVED">Archived</option>
+              <option value="DRAFT">مسودة</option>
+              <option value="ACTIVE">نشط</option>
+              <option value="ARCHIVED">مؤرشف</option>
             </select>
             {errorFor('status') && <span className="adminFieldError">{errorFor('status')}</span>}
           </div>
           <div className="adminField">
-            <label htmlFor="p-baseprice">Base price (₪) *</label>
+            <label htmlFor="p-baseprice">السعر الأساسي (₪) *</label>
             <input id="p-baseprice" className={errorFor('basePrice') ? 'hasError' : ''} type="number" min="0" step="0.01" value={basePrice} onChange={(e) => setBasePrice(e.target.value)} required />
             {errorFor('basePrice') && <span className="adminFieldError">{errorFor('basePrice')}</span>}
           </div>
           <div className="adminField">
-            <label htmlFor="p-compareprice">Compare-at price (₪)</label>
+            <label htmlFor="p-compareprice">السعر قبل الخصم (₪)</label>
             <input id="p-compareprice" className={errorFor('compareAtPrice') ? 'hasError' : ''} type="number" min="0" step="0.01" value={compareAtPrice} onChange={(e) => setCompareAtPrice(e.target.value)} />
             {errorFor('compareAtPrice') && <span className="adminFieldError">{errorFor('compareAtPrice')}</span>}
           </div>
         </div>
         <div className="adminCheckRow" style={{ marginTop: 13 }}>
-          <label className={`adminCheck${isFeatured ? ' isOn' : ''}`}><input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} /> Featured</label>
-          <label className={`adminCheck${isNewArrival ? ' isOn' : ''}`}><input type="checkbox" checked={isNewArrival} onChange={(e) => setIsNewArrival(e.target.checked)} /> New arrival</label>
-          <label className={`adminCheck${isBestSeller ? ' isOn' : ''}`}><input type="checkbox" checked={isBestSeller} onChange={(e) => setIsBestSeller(e.target.checked)} /> Best seller</label>
+          <label className={`adminCheck${isFeatured ? ' isOn' : ''}`}><input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} /> مميز</label>
+          <label className={`adminCheck${isNewArrival ? ' isOn' : ''}`}><input type="checkbox" checked={isNewArrival} onChange={(e) => setIsNewArrival(e.target.checked)} /> وصل حديثاً</label>
+          <label className={`adminCheck${isBestSeller ? ' isOn' : ''}`}><input type="checkbox" checked={isBestSeller} onChange={(e) => setIsBestSeller(e.target.checked)} /> الأكثر مبيعاً</label>
         </div>
       </div>
 
       {/* Images */}
       <div className="adminCard">
         <div className="adminCardHeader">
-          <div><h2>Images</h2><p className="adminMuted">ارفعي صورة من جهازك أو أدخلي رابط الصورة يدوياً. الصورة الرئيسية تظهر أولاً.</p></div>
+          <div><h2>الصور</h2><p className="adminMuted">ارفعي صورة من جهازك أو أدخلي رابط الصورة يدوياً. الصورة الرئيسية تظهر أولاً.</p></div>
           <div className="adminBtnRow">
             <ImageUploadButton kind="product" onUploaded={addUploadedImage} label="رفع صورة" />
             <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={() => setImages((prev) => [...prev, { url: '', alt: '', isPrimary: prev.length === 0 }])}>+ رابط صورة</button>
@@ -357,56 +357,56 @@ export function ProductForm({
       {/* Variants */}
       <div className="adminCard">
         <div className="adminCardHeader">
-          <div><h2>Variants</h2><p className="adminMuted">{activeVariantCount} active · {variants.length} total. SKUs must be unique.</p></div>
-          <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={() => setVariants((prev) => [...prev, { ...EMPTY_VARIANT }])}>+ Add variant</button>
+          <div><h2>الخيارات</h2><p className="adminMuted">{activeVariantCount} نشط · {variants.length} إجمالاً. يجب أن تكون قيم الـ SKU فريدة.</p></div>
+          <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={() => setVariants((prev) => [...prev, { ...EMPTY_VARIANT }])}>+ إضافة خيار</button>
         </div>
         {variants.map((variant, index) => (
           <div className="adminRepeatRow" key={index}>
             <div className="adminRepeatHeader">
-              <strong>Variant {index + 1}{variant.sku ? ` · ${variant.sku}` : ''}</strong>
+              <strong>الخيار {index + 1}{variant.sku ? ` · ${variant.sku}` : ''}</strong>
               {variants.length > 1 && (
-                <button type="button" className="adminBtn adminBtnDanger adminBtnSm" onClick={() => setVariants((prev) => prev.filter((_, i) => i !== index))}>Remove</button>
+                <button type="button" className="adminBtn adminBtnDanger adminBtnSm" onClick={() => setVariants((prev) => prev.filter((_, i) => i !== index))}>إزالة</button>
               )}
             </div>
             <div className="adminRepeatGrid">
               <div className="adminField">
-                <label>SKU *</label>
+                <label>الـ SKU *</label>
                 <input className={errorFor(`variants.${index}.sku`) ? 'hasError' : ''} value={variant.sku} onChange={(e) => updateVariant(index, { sku: e.target.value })} />
                 {errorFor(`variants.${index}.sku`) && <span className="adminFieldError">{errorFor(`variants.${index}.sku`)}</span>}
               </div>
               <div className="adminField">
-                <label>Size</label>
+                <label>المقاس</label>
                 <input value={variant.size} onChange={(e) => updateVariant(index, { size: e.target.value })} />
               </div>
               <div className="adminField">
-                <label>Color name</label>
+                <label>اسم اللون</label>
                 <input value={variant.colorName} onChange={(e) => updateVariant(index, { colorName: e.target.value })} />
               </div>
               <div className="adminField">
-                <label>Color value (hex)</label>
+                <label>قيمة اللون (hex)</label>
                 <input value={variant.colorValue} onChange={(e) => updateVariant(index, { colorValue: e.target.value })} placeholder="#bd8754" />
               </div>
               <div className="adminField">
-                <label>Price (₪) *</label>
+                <label>السعر (₪) *</label>
                 <input className={errorFor(`variants.${index}.price`) ? 'hasError' : ''} type="number" min="0" step="0.01" value={variant.price} onChange={(e) => updateVariant(index, { price: e.target.value })} />
                 {errorFor(`variants.${index}.price`) && <span className="adminFieldError">{errorFor(`variants.${index}.price`)}</span>}
               </div>
               <div className="adminField">
-                <label>Compare-at (₪)</label>
+                <label>السعر قبل الخصم (₪)</label>
                 <input type="number" min="0" step="0.01" value={variant.compareAtPrice} onChange={(e) => updateVariant(index, { compareAtPrice: e.target.value })} />
               </div>
               <div className="adminField">
-                <label>Quantity *</label>
+                <label>الكمية *</label>
                 <input className={errorFor(`variants.${index}.quantity`) ? 'hasError' : ''} type="number" min="0" step="1" value={variant.quantity} onChange={(e) => updateVariant(index, { quantity: e.target.value })} />
                 {errorFor(`variants.${index}.quantity`) && <span className="adminFieldError">{errorFor(`variants.${index}.quantity`)}</span>}
               </div>
               <div className="adminField">
-                <label>Low-stock threshold</label>
+                <label>حد المخزون المنخفض</label>
                 <input type="number" min="0" step="1" value={variant.lowStockThreshold} onChange={(e) => updateVariant(index, { lowStockThreshold: e.target.value })} />
               </div>
             </div>
             <label className={`adminCheck${variant.isActive ? ' isOn' : ''}`} style={{ width: 'fit-content' }}>
-              <input type="checkbox" checked={variant.isActive} onChange={(e) => updateVariant(index, { isActive: e.target.checked })} /> Active variant
+              <input type="checkbox" checked={variant.isActive} onChange={(e) => updateVariant(index, { isActive: e.target.checked })} /> خيار نشط
             </label>
           </div>
         ))}
@@ -414,9 +414,9 @@ export function ProductForm({
 
       <div className="adminBtnRow">
         <button type="submit" className="adminBtn adminBtnPrimary" disabled={pending}>
-          {pending ? 'Saving…' : mode === 'create' ? 'Create product' : 'Save changes'}
+          {pending ? 'جارٍ الحفظ…' : mode === 'create' ? 'إنشاء المنتج' : 'حفظ التغييرات'}
         </button>
-        <button type="button" className="adminBtn adminBtnGhost" disabled={pending} onClick={() => router.push('/admin/products')}>Cancel</button>
+        <button type="button" className="adminBtn adminBtnGhost" disabled={pending} onClick={() => router.push('/admin/products')}>إلغاء</button>
       </div>
     </form>
   );

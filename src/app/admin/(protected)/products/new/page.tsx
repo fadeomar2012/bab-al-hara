@@ -32,10 +32,10 @@ export default async function NewProductPage() {
     <div>
       <div className="adminPageHeader">
         <div>
-          <h1>New product</h1>
-          <p className="adminMuted">Create a product, then add images and variants.</p>
+          <h1>منتج جديد</h1>
+          <p className="adminMuted">أنشئ منتجاً، ثم أضف الصور والخيارات.</p>
         </div>
-        <Link href="/admin/products" className="adminBtn adminBtnGhost">← Back</Link>
+        <Link href="/admin/products" className="adminBtn adminBtnGhost">→ رجوع</Link>
       </div>
       <ProductForm mode="create" categories={categories} initial={EMPTY} />
     </div>

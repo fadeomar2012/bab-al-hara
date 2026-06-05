@@ -10,8 +10,8 @@ export default async function AdminCategoriesPage() {
     <div>
       <div className="adminPageHeader">
         <div>
-          <h1>Categories</h1>
-          <p className="adminMuted">Organise the storefront catalog. Disable instead of deleting categories that still have products.</p>
+          <h1>التصنيفات</h1>
+          <p className="adminMuted">نظّم كتالوج المتجر. عطّل التصنيفات التي لا تزال تحتوي على منتجات بدلاً من حذفها.</p>
         </div>
       </div>
       <CategoryManager categories={categories} parentOptions={parentOptions} />

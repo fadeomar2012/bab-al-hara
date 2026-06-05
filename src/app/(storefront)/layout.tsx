@@ -1,5 +1,6 @@
 import { CartProvider } from '@/components/CartProvider';
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 
 export default function StorefrontLayout({ children }: { children: React.ReactNode }) {
@@ -7,6 +8,7 @@ export default function StorefrontLayout({ children }: { children: React.ReactNo
     <CartProvider>
       <Header />
       <main className="pageShell">{children}</main>
+      <Footer />
       <MobileBottomNav />
     </CartProvider>
   );

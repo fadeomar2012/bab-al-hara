@@ -12,7 +12,10 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "media:upload": "tsx scripts/upload-demo-media.ts",
+    "media:apply": "tsx scripts/apply-demo-media.ts",
+    "db:demo-media": "tsx scripts/apply-demo-pexels-media.ts"
   },
   "dependencies": {
     "@prisma/client": "6.19.0",

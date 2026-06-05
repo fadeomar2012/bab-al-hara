@@ -4,6 +4,7 @@ import { getAdminOrders, type AdminOrderDateFilter } from '@/features/admin/orde
 import { formatCurrency, formatDateTime } from '@/features/admin/shared/admin-format';
 import { OrderFilters } from '@/components/admin/OrderFilters';
 import { OrderStatusBadge } from '@/components/admin/OrderStatusBadge';
+import { AdminEmptyState } from '@/components/admin/AdminEmptyState';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,20 +24,36 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
   if (sp.date) exportQuery.set('date', sp.date);
   const exportHref = `/admin/orders/export${exportQuery.toString() ? `?${exportQuery.toString()}` : ''}`;
 
+  const hasFilters = Boolean(sp.q || (sp.status && sp.status !== 'ALL') || (sp.date && sp.date !== 'all'));
+
   return (
     <div>
       <div className="adminPageHeader">
         <div>
-          <h1>Orders</h1>
-          <p className="adminMuted">{orders.length} order{orders.length === 1 ? '' : 's'} shown · COD only.</p>
+          <h1>الطلبات</h1>
+          <p className="adminMuted">عرض {orders.length} طلب · الدفع عند الاستلام فقط.</p>
         </div>
-        <a href={exportHref} className="adminBtn adminBtnGhost" download>⬇ Export CSV</a>
+        <a href={exportHref} className="adminBtn adminBtnGhost" download>⬇ تصدير CSV</a>
       </div>
 
       <OrderFilters />
 
       {orders.length === 0 ? (
-        <div className="adminEmptyState">No orders match these filters.</div>
+        hasFilters ? (
+          <AdminEmptyState
+            icon="🔍"
+            title="لا توجد نتائج مطابقة"
+            description="لا توجد طلبات تطابق عوامل التصفية الحالية. جرّب تعديل البحث أو الفلاتر."
+            actionHref="/admin/orders"
+            actionLabel="مسح الفلاتر"
+          />
+        ) : (
+          <AdminEmptyState
+            icon="🧾"
+            title="لا توجد طلبات بعد"
+            description="ستظهر هنا الطلبات الجديدة فور إتمام العملاء للشراء بالدفع عند الاستلام."
+          />
+        )
       ) : (
         <>
           {/* Desktop table */}
@@ -45,20 +62,20 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
               <table className="adminTable">
                 <thead>
                   <tr>
-                    <th>Order</th>
-                    <th>Customer</th>
-                    <th>Location</th>
-                    <th>Status</th>
-                    <th>Items</th>
-                    <th>Total</th>
-                    <th>Placed</th>
-                    <th>Actions</th>
+                    <th>الطلب</th>
+                    <th>العميل</th>
+                    <th>الموقع</th>
+                    <th>الحالة</th>
+                    <th>العناصر</th>
+                    <th>الإجمالي</th>
+                    <th>تاريخ الطلب</th>
+                    <th>الإجراءات</th>
                   </tr>
                 </thead>
                 <tbody>
                   {orders.map((order) => (
                     <tr key={order.id}>
-                      <td><strong>{order.orderNumber}</strong>{order.status === 'PENDING' && <span className="adminNewPill">NEW</span>}</td>
+                      <td><strong>{order.orderNumber}</strong>{order.status === 'PENDING' && <span className="adminNewPill">جديد</span>}</td>
                       <td>
                         <div className="adminCellMain">
                           <div>
@@ -72,7 +89,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
                       <td>{order.itemCount}</td>
                       <td>{formatCurrency(order.total)}</td>
                       <td className="adminMuted">{formatDateTime(order.createdAt)}</td>
-                      <td><Link href={`/admin/orders/${order.id}`} className="adminBtn adminBtnSm">View</Link></td>
+                      <td><Link href={`/admin/orders/${order.id}`} className="adminBtn adminBtnSm">عرض</Link></td>
                     </tr>
                   ))}
                 </tbody>
@@ -86,14 +103,14 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
               <Link href={`/admin/orders/${order.id}`} key={order.id} className="adminRecordCard" style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className="adminRecordTop">
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <strong>{order.orderNumber}</strong>{order.status === 'PENDING' && <span className="adminNewPill">NEW</span>}
+                    <strong>{order.orderNumber}</strong>{order.status === 'PENDING' && <span className="adminNewPill">جديد</span>}
                     <div className="adminMuted" style={{ fontSize: 12 }}>{order.customerName} · {order.customerPhone}</div>
                   </div>
                   <OrderStatusBadge status={order.status} />
                 </div>
                 <div className="adminRecordMeta">
                   <span>{order.city} · {order.area}</span>
-                  <span>{order.itemCount} item{order.itemCount === 1 ? '' : 's'}</span>
+                  <span>{order.itemCount} عنصر</span>
                   <span><b>{formatCurrency(order.total)}</b></span>
                   <span>{formatDateTime(order.createdAt)}</span>
                 </div>

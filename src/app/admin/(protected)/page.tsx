@@ -9,51 +9,51 @@ export default async function AdminDashboardPage() {
   const overview = await getDashboardOverview();
 
   const productStats: Stat[] = [
-    { label: 'Total products', value: overview.totalProducts },
-    { label: 'Active', value: overview.activeProducts },
-    { label: 'Draft', value: overview.draftProducts },
-    { label: 'Archived', value: overview.archivedProducts },
-    { label: 'Categories', value: overview.totalCategories },
-    { label: 'Active banners', value: overview.activeBanners }
+    { label: 'إجمالي المنتجات', value: overview.totalProducts },
+    { label: 'نشط', value: overview.activeProducts },
+    { label: 'مسودة', value: overview.draftProducts },
+    { label: 'مؤرشف', value: overview.archivedProducts },
+    { label: 'التصنيفات', value: overview.totalCategories },
+    { label: 'بنرات فعّالة', value: overview.activeBanners }
   ];
 
   const stockStats: Stat[] = [
-    { label: 'Active variants', value: overview.totalVariants },
-    { label: 'Low stock', value: overview.lowStockVariants, tone: 'warn' },
-    { label: 'Out of stock', value: overview.outOfStockVariants, tone: 'danger' }
+    { label: 'خيارات نشطة', value: overview.totalVariants },
+    { label: 'مخزون منخفض', value: overview.lowStockVariants, tone: 'warn' },
+    { label: 'نفد المخزون', value: overview.outOfStockVariants, tone: 'danger' }
   ];
 
   const orderStats: Stat[] = [
-    { label: 'Pending', value: overview.pendingOrders, tone: 'warn' },
-    { label: 'Confirmed / processing', value: overview.inProgressOrders },
-    { label: 'Shipped', value: overview.shippedOrders },
-    { label: 'Delivered', value: overview.deliveredOrders },
-    { label: 'Canceled', value: overview.canceledOrders, tone: 'danger' },
-    { label: 'Orders today', value: overview.todayOrders }
+    { label: 'بانتظار التأكيد', value: overview.pendingOrders, tone: 'warn' },
+    { label: 'مؤكد / قيد التجهيز', value: overview.inProgressOrders },
+    { label: 'تم الشحن', value: overview.shippedOrders },
+    { label: 'تم التسليم', value: overview.deliveredOrders },
+    { label: 'ملغي', value: overview.canceledOrders, tone: 'danger' },
+    { label: 'طلبات اليوم', value: overview.todayOrders }
   ];
 
   const quickLinks = [
-    { href: '/admin/orders', label: 'Manage orders' },
-    { href: '/admin/products/new', label: '+ Add product' },
-    { href: '/admin/products', label: 'Manage products' },
-    { href: '/admin/inventory', label: 'Manage inventory' },
-    { href: '/admin/categories', label: 'Manage categories' },
-    { href: '/admin/banners', label: 'Manage banners' }
+    { href: '/admin/orders', label: 'إدارة الطلبات' },
+    { href: '/admin/products/new', label: '+ إضافة منتج' },
+    { href: '/admin/products', label: 'إدارة المنتجات' },
+    { href: '/admin/inventory', label: 'إدارة المخزون' },
+    { href: '/admin/categories', label: 'إدارة التصنيفات' },
+    { href: '/admin/banners', label: 'إدارة البنرات' }
   ];
 
   return (
     <div>
       <div className="adminPageHeader">
         <div>
-          <h1>Dashboard</h1>
-          <p className="adminMuted">Catalog overview for Bab Al Hara.</p>
+          <h1>لوحة التحكم</h1>
+          <p className="adminMuted">نظرة عامة على كتالوج باب الحارة.</p>
         </div>
-        <Link href="/admin/products/new" className="adminBtn adminBtnPrimary">+ Add product</Link>
+        <Link href="/admin/products/new" className="adminBtn adminBtnPrimary">+ إضافة منتج</Link>
       </div>
 
       <div className="adminCard">
         <div className="adminCardHeader">
-          <h2>Catalog</h2>
+          <h2>الكتالوج</h2>
         </div>
         <div className="adminStatGrid">
           {productStats.map((stat) => (
@@ -67,8 +67,8 @@ export default async function AdminDashboardPage() {
 
       <div className="adminCard">
         <div className="adminCardHeader">
-          <h2>Orders</h2>
-          <Link href="/admin/orders" className="adminBtn adminBtnGhost adminBtnSm">Open orders</Link>
+          <h2>الطلبات</h2>
+          <Link href="/admin/orders" className="adminBtn adminBtnGhost adminBtnSm">فتح الطلبات</Link>
         </div>
         <div className="adminStatGrid">
           {orderStats.map((stat) => (
@@ -78,13 +78,13 @@ export default async function AdminDashboardPage() {
             </div>
           ))}
         </div>
-        <p className="adminMuted" style={{ marginTop: 10 }}>Today&apos;s order value (excl. canceled): <strong>₪{overview.todayOrderValue.toLocaleString('en-US', { maximumFractionDigits: 2 })}</strong></p>
+        <p className="adminMuted" style={{ marginTop: 10 }}>قيمة طلبات اليوم (عدا الملغاة): <strong>₪{overview.todayOrderValue.toLocaleString('en-US', { maximumFractionDigits: 2 })}</strong></p>
       </div>
 
       <div className="adminCard">
         <div className="adminCardHeader">
-          <h2>Stock health</h2>
-          <Link href="/admin/inventory" className="adminBtn adminBtnGhost adminBtnSm">Open inventory</Link>
+          <h2>حالة المخزون</h2>
+          <Link href="/admin/inventory" className="adminBtn adminBtnGhost adminBtnSm">فتح المخزون</Link>
         </div>
         <div className="adminStatGrid">
           {stockStats.map((stat) => (
@@ -98,7 +98,7 @@ export default async function AdminDashboardPage() {
 
       <div className="adminCard">
         <div className="adminCardHeader">
-          <h2>Quick actions</h2>
+          <h2>إجراءات سريعة</h2>
         </div>
         <div className="adminQuickGrid">
           {quickLinks.map((link) => (

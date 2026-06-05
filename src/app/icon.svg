@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" role="img" aria-label="باب الحارة">
+  <defs>
+    <linearGradient id="bahTile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff8ee"/>
+      <stop offset="55%" stop-color="#f1dfc8"/>
+      <stop offset="100%" stop-color="#d9b37a"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="46" height="46" rx="12" fill="url(#bahTile)" stroke="#c9a65a" stroke-width="1.5"/>
+  <path fill-rule="evenodd" clip-rule="evenodd" fill="#211713"
+    d="M11 40V23.2C11 15.92 16.82 10 24 10s13 5.92 13 13.2V40a1 1 0 0 1-1 1h-4.4a1 1 0 0 1-1-1V23.7C30.6 19.3 27.65 15.8 24 15.8s-6.6 3.5-6.6 7.9V40a1 1 0 0 1-1 1H12a1 1 0 0 1-1-1Z"/>
+  <line x1="24" y1="16.6" x2="24" y2="41" stroke="#c9a65a" stroke-width="1.7" stroke-linecap="round"/>
+  <circle cx="20.6" cy="30.5" r="1.5" fill="#c9a65a"/>
+  <circle cx="24" cy="13" r="1.5" fill="#c9a65a"/>
+</svg>

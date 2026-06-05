@@ -35,7 +35,7 @@ function InventoryCard({ row }: { row: InventoryRow }) {
         const result = await updateVariantThresholdAction(row.id, Number(threshold));
         if (!result.ok) { setMessage({ kind: 'error', text: result.message }); return; }
       }
-      setMessage({ kind: 'ok', text: 'Saved' });
+      setMessage({ kind: 'ok', text: 'تم الحفظ' });
       router.refresh();
     });
   }
@@ -67,27 +67,27 @@ function InventoryCard({ row }: { row: InventoryRow }) {
             <b>{row.colorName}</b>
           </span>
         )}
-        {row.size && <span>Size: <b>{row.size}</b></span>}
-        {!row.isActive && <span className="adminBadge isArchived">Inactive</span>}
+        {row.size && <span>المقاس: <b>{row.size}</b></span>}
+        {!row.isActive && <span className="adminBadge isArchived">غير نشط</span>}
       </div>
 
       <div className="adminInventoryControls">
         <div className="adminField">
-          <label>Quantity</label>
+          <label>الكمية</label>
           <input type="number" min="0" step="1" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
         </div>
         <div className="adminField">
-          <label>Low-stock threshold</label>
+          <label>حد المخزون المنخفض</label>
           <input type="number" min="0" step="1" value={threshold} onChange={(e) => setThreshold(e.target.value)} />
         </div>
       </div>
 
       <div className="adminBtnRow">
         <button type="button" className="adminBtn adminBtnPrimary adminBtnSm" onClick={save} disabled={pending || !dirty}>
-          {pending ? 'Saving…' : 'Save'}
+          {pending ? 'جارٍ الحفظ…' : 'حفظ'}
         </button>
         <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={toggleActive} disabled={pending}>
-          {row.isActive ? 'Deactivate' : 'Activate'}
+          {row.isActive ? 'إلغاء التنشيط' : 'تنشيط'}
         </button>
         {message && <span className={message.kind === 'ok' ? 'adminFieldHint' : 'adminFieldError'}>{message.text}</span>}
         <span className="adminMuted" style={{ marginInlineStart: 'auto', fontSize: 12 }}>{formatDateTime(row.updatedAt)}</span>
@@ -98,7 +98,7 @@ function InventoryCard({ row }: { row: InventoryRow }) {
 
 export function InventoryTable({ rows }: { rows: InventoryRow[] }) {
   if (rows.length === 0) {
-    return <div className="adminEmptyState">No variants match these filters.</div>;
+    return <div className="adminEmptyState">لا توجد خيارات تطابق هذه التصفية.</div>;
   }
   return (
     <div className="adminInventoryGrid">

@@ -12,6 +12,7 @@ import { BANNER_PLACEMENTS } from '@/features/admin/banners/banner-admin.validat
 import type { AdminBannerListItem } from '@/features/admin/banners/banner-admin.queries';
 import { formatDateTime } from '@/features/admin/shared/admin-format';
 import { ImageUploadButton } from './ImageUploadButton';
+import { AdminEmptyState } from './AdminEmptyState';
 
 type EditorState = {
   id?: string;
@@ -30,9 +31,9 @@ type EditorState = {
 };
 
 const PLACEMENT_LABEL: Record<string, string> = {
-  HOME_HERO: 'Home hero',
-  HOME_PROMO: 'Home promo',
-  CATEGORY_TOP: 'Category top'
+  HOME_HERO: 'الصفحة الرئيسية - الواجهة',
+  HOME_PROMO: 'الصفحة الرئيسية - عرض ترويجي',
+  CATEGORY_TOP: 'أعلى صفحة التصنيف'
 };
 
 function emptyEditor(sortOrder: number): EditorState {
@@ -115,7 +116,7 @@ export function BannerManager({ banners }: { banners: AdminBannerListItem[] }) {
   }
 
   function remove(banner: AdminBannerListItem) {
-    if (!window.confirm(`Delete banner "${banner.title}"?`)) return;
+    if (!window.confirm(`حذف البنر "${banner.title}"؟`)) return;
     startTransition(async () => {
       await deleteBannerAction(banner.id);
       router.refresh();
@@ -125,30 +126,30 @@ export function BannerManager({ banners }: { banners: AdminBannerListItem[] }) {
   return (
     <div>
       <div className="adminCardHeader">
-        <p className="adminMuted">{banners.length} banners.</p>
-        {!editor && <button type="button" className="adminBtn adminBtnPrimary" onClick={openAdd}>+ Add banner</button>}
+        <p className="adminMuted">{banners.length} بنر.</p>
+        {!editor && <button type="button" className="adminBtn adminBtnPrimary" onClick={openAdd}>+ إضافة بنر</button>}
       </div>
 
       {editor && (
         <form className="adminCard adminForm" onSubmit={submit} style={{ marginBottom: 16 }}>
-          <div className="adminCardHeader"><h2>{editor.id ? 'Edit banner' : 'New banner'}</h2></div>
+          <div className="adminCardHeader"><h2>{editor.id ? 'تعديل البنر' : 'بنر جديد'}</h2></div>
           {formMessage && <div className="adminAlert isError">{formMessage}</div>}
           <div className="adminFormGrid two">
             <div className="adminField spanTwo">
-              <label>Title *</label>
+              <label>العنوان *</label>
               <input className={issues.title ? 'hasError' : ''} value={editor.title} onChange={(e) => setEditor({ ...editor, title: e.target.value })} required />
               {issues.title && <span className="adminFieldError">{issues.title}</span>}
             </div>
             <div className="adminField">
-              <label>Eyebrow</label>
+              <label>النص العلوي</label>
               <input value={editor.eyebrow} onChange={(e) => setEditor({ ...editor, eyebrow: e.target.value })} />
             </div>
             <div className="adminField">
-              <label>CTA label</label>
+              <label>زر الإجراء</label>
               <input value={editor.ctaLabel} onChange={(e) => setEditor({ ...editor, ctaLabel: e.target.value })} />
             </div>
             <div className="adminField spanTwo">
-              <label>Subtitle</label>
+              <label>العنوان الفرعي</label>
               <textarea value={editor.subtitle} onChange={(e) => setEditor({ ...editor, subtitle: e.target.value })} />
             </div>
             <div className="adminField spanTwo">
@@ -176,12 +177,12 @@ export function BannerManager({ banners }: { banners: AdminBannerListItem[] }) {
               </div>
             </div>
             <div className="adminField">
-              <label>Link (href)</label>
+              <label>الرابط (href)</label>
               <input className={issues.href ? 'hasError' : ''} value={editor.href} onChange={(e) => setEditor({ ...editor, href: e.target.value })} placeholder="/category/sale" />
               {issues.href && <span className="adminFieldError">{issues.href}</span>}
             </div>
             <div className="adminField">
-              <label>Placement *</label>
+              <label>الموضع *</label>
               <select value={editor.placement} onChange={(e) => setEditor({ ...editor, placement: e.target.value as EditorState['placement'] })}>
                 {BANNER_PLACEMENTS.map((placement) => (
                   <option key={placement} value={placement}>{PLACEMENT_LABEL[placement]}</option>
@@ -189,55 +190,66 @@ export function BannerManager({ banners }: { banners: AdminBannerListItem[] }) {
               </select>
             </div>
             <div className="adminField">
-              <label>Sort order</label>
+              <label>ترتيب العرض</label>
               <input type="number" min="0" step="1" value={editor.sortOrder} onChange={(e) => setEditor({ ...editor, sortOrder: e.target.value })} />
             </div>
             <div className="adminField">
-              <label>Starts at</label>
+              <label>يبدأ في</label>
               <input type="datetime-local" value={editor.startsAt} onChange={(e) => setEditor({ ...editor, startsAt: e.target.value })} />
             </div>
             <div className="adminField">
-              <label>Ends at</label>
+              <label>ينتهي في</label>
               <input className={issues.endsAt ? 'hasError' : ''} type="datetime-local" value={editor.endsAt} onChange={(e) => setEditor({ ...editor, endsAt: e.target.value })} />
               {issues.endsAt && <span className="adminFieldError">{issues.endsAt}</span>}
             </div>
             <div className="adminField">
               <label>&nbsp;</label>
               <label className={`adminCheck${editor.isActive ? ' isOn' : ''}`}>
-                <input type="checkbox" checked={editor.isActive} onChange={(e) => setEditor({ ...editor, isActive: e.target.checked })} /> Active
+                <input type="checkbox" checked={editor.isActive} onChange={(e) => setEditor({ ...editor, isActive: e.target.checked })} /> نشط
               </label>
             </div>
           </div>
           <div className="adminBtnRow">
-            <button type="submit" className="adminBtn adminBtnPrimary" disabled={pending}>{pending ? 'Saving…' : editor.id ? 'Save banner' : 'Create banner'}</button>
-            <button type="button" className="adminBtn adminBtnGhost" disabled={pending} onClick={() => setEditor(null)}>Cancel</button>
+            <button type="submit" className="adminBtn adminBtnPrimary" disabled={pending}>{pending ? 'جارٍ الحفظ…' : editor.id ? 'حفظ البنر' : 'إنشاء البنر'}</button>
+            <button type="button" className="adminBtn adminBtnGhost" disabled={pending} onClick={() => setEditor(null)}>إلغاء</button>
           </div>
         </form>
       )}
 
       {banners.length === 0 ? (
-        <div className="adminEmptyState">No banners yet.</div>
+        <AdminEmptyState
+          icon="🖼️"
+          title="لا توجد بنرات بعد"
+          description="أضيفي بنرات الواجهة والعروض لتظهر في الصفحة الرئيسية وصفحات التصنيفات."
+        />
       ) : (
-        <div className="adminCardList">
+        <div className="adminBannerGrid">
           {banners.map((banner) => (
-            <div key={banner.id} className="adminRecordCard">
-              <div className="adminRecordTop">
-                <img className="adminThumb" src={banner.imageUrl || '/mock-products/gift-box.svg'} alt={banner.title} />
-                <div style={{ minWidth: 0, flex: 1 }}>
+            <div key={banner.id} className="adminBannerCard">
+              <div className="adminBannerPreview">
+                {banner.imageUrl ? (
+                  <img src={banner.imageUrl} alt={banner.title} />
+                ) : (
+                  <span className="adminBannerPreviewEmpty">لا توجد صورة</span>
+                )}
+                <span className="adminBannerPlacement">{PLACEMENT_LABEL[banner.placement]}</span>
+                <span className={`adminBadge ${banner.isActive ? 'isActive' : 'isArchived'} adminBannerStatus`}>{banner.isActive ? 'نشط' : 'معطّل'}</span>
+              </div>
+              <div className="adminBannerBody">
+                <div>
                   <strong>{banner.title}</strong>
-                  <div className="adminMuted" style={{ fontSize: 12 }}>{PLACEMENT_LABEL[banner.placement]} · sort {banner.sortOrder}</div>
+                  <div className="adminMuted" style={{ fontSize: 12 }}>ترتيب {banner.sortOrder}</div>
                 </div>
-                <span className={`adminBadge ${banner.isActive ? 'isActive' : 'isArchived'}`}>{banner.isActive ? 'Active' : 'Disabled'}</span>
-              </div>
-              <div className="adminRecordMeta">
-                {banner.startsAt && <span>From: <b>{formatDateTime(banner.startsAt)}</b></span>}
-                {banner.endsAt && <span>Until: <b>{formatDateTime(banner.endsAt)}</b></span>}
-                {banner.href && <span>Link: <b>{banner.href}</b></span>}
-              </div>
-              <div className="adminBtnRow">
-                <button type="button" className="adminBtn adminBtnSm" onClick={() => openEdit(banner)} disabled={pending}>Edit</button>
-                <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={() => toggleActive(banner)} disabled={pending}>{banner.isActive ? 'Disable' : 'Enable'}</button>
-                <button type="button" className="adminBtn adminBtnDanger adminBtnSm" onClick={() => remove(banner)} disabled={pending}>Delete</button>
+                <div className="adminRecordMeta">
+                  {banner.startsAt && <span>من: <b>{formatDateTime(banner.startsAt)}</b></span>}
+                  {banner.endsAt && <span>حتى: <b>{formatDateTime(banner.endsAt)}</b></span>}
+                  {banner.href && <span>الرابط: <b>{banner.href}</b></span>}
+                </div>
+                <div className="adminBtnRow">
+                  <button type="button" className="adminBtn adminBtnSm" onClick={() => openEdit(banner)} disabled={pending}>تعديل</button>
+                  <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={() => toggleActive(banner)} disabled={pending}>{banner.isActive ? 'تعطيل' : 'تفعيل'}</button>
+                  <button type="button" className="adminBtn adminBtnDanger adminBtnSm" onClick={() => remove(banner)} disabled={pending}>حذف</button>
+                </div>
               </div>
             </div>
           ))}

@@ -19,13 +19,19 @@ const STATUS_CLASS: Record<ProductStatus, string> = {
   ARCHIVED: 'isArchived'
 };
 
+const STATUS_LABEL_AR: Record<ProductStatus, string> = {
+  ACTIVE: 'نشط',
+  DRAFT: 'مسودة',
+  ARCHIVED: 'مؤرشف'
+};
+
 function StockBadge({ item }: { item: AdminProductListItem }) {
   const cls = item.stockState === 'in-stock' ? 'stockIn' : item.stockState === 'low-stock' ? 'stockLow' : 'stockOut';
   return <span className={`adminBadge ${cls}`}>{item.totalStock} · {STOCK_STATE_LABEL[item.stockState]}</span>;
 }
 
 function Flags({ item }: { item: AdminProductListItem }) {
-  const flags = [item.isFeatured && 'Featured', item.isNewArrival && 'New', item.isBestSeller && 'Best'].filter(Boolean) as string[];
+  const flags = [item.isFeatured && 'مميز', item.isNewArrival && 'وصل حديثاً', item.isBestSeller && 'الأكثر مبيعاً'].filter(Boolean) as string[];
   if (!flags.length) return <span className="adminMuted">—</span>;
   return (
     <span className="adminFlagDot">
@@ -55,16 +61,16 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
     <div>
       <div className="adminPageHeader">
         <div>
-          <h1>Products</h1>
-          <p className="adminMuted">{products.length} product{products.length === 1 ? '' : 's'} shown.</p>
+          <h1>المنتجات</h1>
+          <p className="adminMuted">عرض {products.length} منتج.</p>
         </div>
-        <Link href="/admin/products/new" className="adminBtn adminBtnPrimary">+ Add product</Link>
+        <Link href="/admin/products/new" className="adminBtn adminBtnPrimary">+ إضافة منتج</Link>
       </div>
 
       <ProductFilters categories={categories} />
 
       {products.length === 0 ? (
-        <div className="adminEmptyState">No products match these filters.</div>
+        <div className="adminEmptyState">لا توجد منتجات تطابق هذه الفلاتر.</div>
       ) : (
         <>
           {/* Desktop table */}
@@ -73,15 +79,15 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
               <table className="adminTable">
                 <thead>
                   <tr>
-                    <th>Product</th>
-                    <th>Category</th>
-                    <th>Status</th>
-                    <th>Price</th>
-                    <th>Variants</th>
-                    <th>Stock</th>
-                    <th>Flags</th>
-                    <th>Updated</th>
-                    <th>Actions</th>
+                    <th>المنتج</th>
+                    <th>التصنيف</th>
+                    <th>الحالة</th>
+                    <th>السعر</th>
+                    <th>الخيارات</th>
+                    <th>المخزون</th>
+                    <th>السمات</th>
+                    <th>آخر تحديث</th>
+                    <th>الإجراءات</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -97,7 +103,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                         </div>
                       </td>
                       <td>{item.categoryName}</td>
-                      <td><span className={`adminBadge ${STATUS_CLASS[item.status]}`}>{item.status}</span></td>
+                      <td><span className={`adminBadge ${STATUS_CLASS[item.status]}`}>{STATUS_LABEL_AR[item.status]}</span></td>
                       <td>{formatCurrency(item.basePrice)}</td>
                       <td>{item.variantCount}</td>
                       <td><StockBadge item={item} /></td>
@@ -124,9 +130,9 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                 </div>
                 <div className="adminRecordMeta">
                   <span><b>{item.categoryName}</b></span>
-                  <span><span className={`adminBadge ${STATUS_CLASS[item.status]}`}>{item.status}</span></span>
+                  <span><span className={`adminBadge ${STATUS_CLASS[item.status]}`}>{STATUS_LABEL_AR[item.status]}</span></span>
                   <span><b>{formatCurrency(item.basePrice)}</b></span>
-                  <span>{item.variantCount} variant{item.variantCount === 1 ? '' : 's'}</span>
+                  <span>{item.variantCount} خيار</span>
                 </div>
                 <div className="adminRecordMeta">
                   <StockBadge item={item} />

@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from './CartProvider';
-import { IconBag, IconMenu } from './Icons';
+import { BrandLogo } from './BrandLogo';
+import { IconCart, IconMenu } from './Icons';
 import { SearchBar } from './SearchBar';
 
 const navLinks = [
@@ -43,21 +44,20 @@ export function Header() {
           >
             <IconMenu size={20} />
           </button>
-          <Link href="/" className="brandMark" aria-label="باب الحارة الرئيسية">
-            <span>باب</span>
-            <strong>الحارة</strong>
+          <Link href="/" className="brandLink" aria-label="باب الحارة الرئيسية">
+            <BrandLogo variant="header" />
           </Link>
-          <nav className="desktopNav" aria-label="التصنيفات الرئيسية">
-            {navLinks.map((link) => <Link key={link.href} href={link.href}>{link.label}</Link>)}
-          </nav>
+          <SearchBar compact />
           <div className="headerActions">
             <Link href="/cart" className="cartButton" aria-label="السلة">
-              <IconBag size={19} />
+              <IconCart size={20} />
               {itemCount > 0 ? <span>{itemCount}</span> : null}
             </Link>
           </div>
         </div>
-        <SearchBar compact />
+        <nav className="desktopNav" aria-label="التصنيفات الرئيسية">
+          {navLinks.map((link) => <Link key={link.href} href={link.href}>{link.label}</Link>)}
+        </nav>
       </header>
 
       {menuOpen ? (
@@ -70,10 +70,7 @@ export function Header() {
           />
           <div className="storeDrawer" role="dialog" aria-modal="true" aria-label="قائمة التنقل">
             <div className="storeDrawerHead">
-              <span className="brandMark drawerBrand">
-                <span>باب</span>
-                <strong>الحارة</strong>
-              </span>
+              <BrandLogo variant="header" />
               <button
                 type="button"
                 className="iconButton"

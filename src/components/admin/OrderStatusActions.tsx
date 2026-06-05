@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { OrderStatus } from '@prisma/client';
 import { updateOrderStatusAction } from '@/features/admin/orders/order-admin.actions';
-import { ALLOWED_TRANSITIONS, STATUS_LABEL } from '@/features/admin/orders/order-admin.validation';
+import { ALLOWED_TRANSITIONS, STATUS_LABEL_AR } from '@/features/admin/orders/order-admin.validation';
 
 export function OrderStatusActions({ orderId, status }: { orderId: string; status: OrderStatus }) {
   const router = useRouter();
@@ -17,9 +17,9 @@ export function OrderStatusActions({ orderId, status }: { orderId: string; statu
     setError(null);
     let note: string | undefined;
     if (next === 'CANCELED') {
-      const confirmed = window.confirm('Cancel this order? Stock will be restored to inventory.');
+      const confirmed = window.confirm('هل تريد إلغاء هذا الطلب؟ ستتم إعادة الكمية إلى المخزون.');
       if (!confirmed) return;
-      note = window.prompt('Optional cancel reason:') ?? undefined;
+      note = window.prompt('سبب الإلغاء (اختياري):') ?? undefined;
     }
     startTransition(async () => {
       const result = await updateOrderStatusAction(orderId, next, note);
@@ -32,7 +32,7 @@ export function OrderStatusActions({ orderId, status }: { orderId: string; statu
   }
 
   if (nextStatuses.length === 0) {
-    return <p className="adminMuted">No further status changes available for this order.</p>;
+    return <p className="adminMuted">لا توجد تغييرات حالة إضافية متاحة لهذا الطلب.</p>;
   }
 
   return (
@@ -46,7 +46,7 @@ export function OrderStatusActions({ orderId, status }: { orderId: string; statu
             disabled={pending}
             onClick={() => run(next)}
           >
-            {next === 'CANCELED' ? 'Cancel order' : `Mark ${STATUS_LABEL[next]}`}
+            {next === 'CANCELED' ? 'إلغاء الطلب' : `تحديد كـ ${STATUS_LABEL_AR[next]}`}
           </button>
         ))}
       </div>

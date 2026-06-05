@@ -3,13 +3,13 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCart } from './CartProvider';
-import { IconBag, IconGrid, IconHome, IconSearch, IconUser } from './Icons';
+import { IconCart, IconGrid, IconHome, IconSearch, IconUser } from './Icons';
 
 const links = [
   { href: '/', label: 'الرئيسية', icon: IconHome },
   { href: '/category/new-in', label: 'الجديد', icon: IconGrid },
   { href: '/category/sale', label: 'العروض', icon: IconSearch },
-  { href: '/cart', label: 'السلة', icon: IconBag },
+  { href: '/cart', label: 'السلة', icon: IconCart },
   { href: '/checkout', label: 'الدفع', icon: IconUser }
 ];
 

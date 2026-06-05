@@ -30,12 +30,12 @@ export function InventoryFilters() {
         update({ q });
       }}
     >
-      <input className="adminInput" type="search" placeholder="Search product or SKU…" value={q} onChange={(event) => setQ(event.target.value)} aria-label="Search inventory" />
-      <select className="adminInput" value={searchParams.get('filter') ?? 'all'} onChange={(event) => update({ filter: event.target.value })} aria-label="Filter inventory">
-        <option value="all">All variants</option>
-        <option value="low-stock">Low stock</option>
-        <option value="out-of-stock">Out of stock</option>
-        <option value="inactive">Inactive variants</option>
+      <input className="adminInput" type="search" placeholder="ابحث باسم المنتج أو الـ SKU…" value={q} onChange={(event) => setQ(event.target.value)} aria-label="بحث في المخزون" />
+      <select className="adminInput" value={searchParams.get('filter') ?? 'all'} onChange={(event) => update({ filter: event.target.value })} aria-label="تصفية المخزون">
+        <option value="all">كل الخيارات</option>
+        <option value="low-stock">مخزون منخفض</option>
+        <option value="out-of-stock">نفد المخزون</option>
+        <option value="inactive">الخيارات غير النشطة</option>
       </select>
     </form>
   );

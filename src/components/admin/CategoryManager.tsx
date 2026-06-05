@@ -108,10 +108,10 @@ export function CategoryManager({
 
   function remove(category: AdminCategoryListItem) {
     setRowError(null);
-    if (!window.confirm(`Delete category "${category.name}"? This cannot be undone.`)) return;
+    if (!window.confirm(`حذف التصنيف "${category.name}"؟ لا يمكن التراجع عن هذا الإجراء.`)) return;
     startTransition(async () => {
       const result = await deleteCategoryAction(category.id);
-      if (!result.ok) setRowError(result.message ?? 'Could not delete category.');
+      if (!result.ok) setRowError(result.message ?? 'تعذّر حذف التصنيف.');
       else router.refresh();
     });
   }
@@ -121,40 +121,40 @@ export function CategoryManager({
   return (
     <div>
       <div className="adminCardHeader">
-        <p className="adminMuted">{categories.length} categories.</p>
-        {!editor && <button type="button" className="adminBtn adminBtnPrimary" onClick={openAdd}>+ Add category</button>}
+        <p className="adminMuted">{categories.length} تصنيف.</p>
+        {!editor && <button type="button" className="adminBtn adminBtnPrimary" onClick={openAdd}>+ إضافة تصنيف</button>}
       </div>
 
       {rowError && <div className="adminAlert isError" style={{ marginBottom: 12 }}>{rowError}</div>}
 
       {editor && (
         <form className="adminCard adminForm" onSubmit={submit} style={{ marginBottom: 16 }}>
-          <div className="adminCardHeader"><h2>{editor.id ? 'Edit category' : 'New category'}</h2></div>
+          <div className="adminCardHeader"><h2>{editor.id ? 'تعديل التصنيف' : 'تصنيف جديد'}</h2></div>
           {formMessage && <div className="adminAlert isError">{formMessage}</div>}
           <div className="adminFormGrid two">
             <div className="adminField">
-              <label>Name *</label>
+              <label>الاسم *</label>
               <input className={issues.name ? 'hasError' : ''} value={editor.name} onChange={(e) => setEditor({ ...editor, name: e.target.value, slug: slugEdited ? editor.slug : slugify(e.target.value) })} required />
               {issues.name && <span className="adminFieldError">{issues.name}</span>}
             </div>
             <div className="adminField">
-              <label>Slug *</label>
+              <label>الـ slug *</label>
               <input className={issues.slug ? 'hasError' : ''} value={editor.slug} onChange={(e) => { setSlugEdited(true); setEditor({ ...editor, slug: e.target.value }); }} onBlur={(e) => setEditor({ ...editor, slug: slugify(e.target.value) })} required />
               {issues.slug && <span className="adminFieldError">{issues.slug}</span>}
             </div>
             <div className="adminField spanTwo">
-              <label>Description</label>
+              <label>الوصف</label>
               <textarea value={editor.description} onChange={(e) => setEditor({ ...editor, description: e.target.value })} />
             </div>
             <div className="adminField">
-              <label>Image URL or path</label>
+              <label>رابط الصورة أو المسار</label>
               <input className={issues.imageUrl ? 'hasError' : ''} value={editor.imageUrl} onChange={(e) => setEditor({ ...editor, imageUrl: e.target.value })} placeholder="/mock-products/bag-camel.svg" />
               {issues.imageUrl && <span className="adminFieldError">{issues.imageUrl}</span>}
             </div>
             <div className="adminField">
-              <label>Parent category</label>
+              <label>التصنيف الأب</label>
               <select className={issues.parentId ? 'hasError' : ''} value={editor.parentId} onChange={(e) => setEditor({ ...editor, parentId: e.target.value })}>
-                <option value="">None (top level)</option>
+                <option value="">لا شيء (مستوى أعلى)</option>
                 {editorParents.map((option) => (
                   <option key={option.id} value={option.id}>{option.name}</option>
                 ))}
@@ -162,25 +162,25 @@ export function CategoryManager({
               {issues.parentId && <span className="adminFieldError">{issues.parentId}</span>}
             </div>
             <div className="adminField">
-              <label>Sort order</label>
+              <label>ترتيب العرض</label>
               <input type="number" min="0" step="1" value={editor.sortOrder} onChange={(e) => setEditor({ ...editor, sortOrder: e.target.value })} />
             </div>
             <div className="adminField">
               <label>&nbsp;</label>
               <label className={`adminCheck${editor.isActive ? ' isOn' : ''}`}>
-                <input type="checkbox" checked={editor.isActive} onChange={(e) => setEditor({ ...editor, isActive: e.target.checked })} /> Active
+                <input type="checkbox" checked={editor.isActive} onChange={(e) => setEditor({ ...editor, isActive: e.target.checked })} /> نشط
               </label>
             </div>
           </div>
           <div className="adminBtnRow">
-            <button type="submit" className="adminBtn adminBtnPrimary" disabled={pending}>{pending ? 'Saving…' : editor.id ? 'Save category' : 'Create category'}</button>
-            <button type="button" className="adminBtn adminBtnGhost" disabled={pending} onClick={() => setEditor(null)}>Cancel</button>
+            <button type="submit" className="adminBtn adminBtnPrimary" disabled={pending}>{pending ? 'جارٍ الحفظ…' : editor.id ? 'حفظ التصنيف' : 'إنشاء التصنيف'}</button>
+            <button type="button" className="adminBtn adminBtnGhost" disabled={pending} onClick={() => setEditor(null)}>إلغاء</button>
           </div>
         </form>
       )}
 
       {categories.length === 0 ? (
-        <div className="adminEmptyState">No categories yet.</div>
+        <div className="adminEmptyState">لا توجد تصنيفات بعد.</div>
       ) : (
         <>
           {/* Desktop table */}
@@ -189,7 +189,7 @@ export function CategoryManager({
               <table className="adminTable">
                 <thead>
                   <tr>
-                    <th>Name</th><th>Slug</th><th>Parent</th><th>Products</th><th>Sort</th><th>Status</th><th>Actions</th>
+                    <th>الاسم</th><th>الـ slug</th><th>التصنيف الأب</th><th>المنتجات</th><th>الترتيب</th><th>الحالة</th><th>الإجراءات</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -200,12 +200,12 @@ export function CategoryManager({
                       <td>{category.parentName ?? '—'}</td>
                       <td>{category.productCount}</td>
                       <td>{category.sortOrder}</td>
-                      <td><span className={`adminBadge ${category.isActive ? 'isActive' : 'isArchived'}`}>{category.isActive ? 'Active' : 'Disabled'}</span></td>
+                      <td><span className={`adminBadge ${category.isActive ? 'isActive' : 'isArchived'}`}>{category.isActive ? 'نشط' : 'معطّل'}</span></td>
                       <td>
                         <div className="adminBtnRow">
-                          <button type="button" className="adminBtn adminBtnSm" onClick={() => openEdit(category)} disabled={pending}>Edit</button>
-                          <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={() => toggleActive(category)} disabled={pending}>{category.isActive ? 'Disable' : 'Enable'}</button>
-                          <button type="button" className="adminBtn adminBtnDanger adminBtnSm" onClick={() => remove(category)} disabled={pending || category.productCount > 0 || category.childCount > 0} title={category.productCount > 0 ? 'Has products' : category.childCount > 0 ? 'Has sub-categories' : 'Delete'}>Delete</button>
+                          <button type="button" className="adminBtn adminBtnSm" onClick={() => openEdit(category)} disabled={pending}>تعديل</button>
+                          <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={() => toggleActive(category)} disabled={pending}>{category.isActive ? 'تعطيل' : 'تفعيل'}</button>
+                          <button type="button" className="adminBtn adminBtnDanger adminBtnSm" onClick={() => remove(category)} disabled={pending || category.productCount > 0 || category.childCount > 0} title={category.productCount > 0 ? 'يحتوي على منتجات' : category.childCount > 0 ? 'يحتوي على تصنيفات فرعية' : 'حذف'}>حذف</button>
                         </div>
                       </td>
                     </tr>
@@ -224,17 +224,17 @@ export function CategoryManager({
                     <strong>{category.name}</strong>
                     <div className="adminMuted" style={{ fontSize: 12 }}>{category.slug}</div>
                   </div>
-                  <span className={`adminBadge ${category.isActive ? 'isActive' : 'isArchived'}`} style={{ marginInlineStart: 'auto' }}>{category.isActive ? 'Active' : 'Disabled'}</span>
+                  <span className={`adminBadge ${category.isActive ? 'isActive' : 'isArchived'}`} style={{ marginInlineStart: 'auto' }}>{category.isActive ? 'نشط' : 'معطّل'}</span>
                 </div>
                 <div className="adminRecordMeta">
-                  <span>Parent: <b>{category.parentName ?? '—'}</b></span>
-                  <span>Products: <b>{category.productCount}</b></span>
-                  <span>Sort: <b>{category.sortOrder}</b></span>
+                  <span>التصنيف الأب: <b>{category.parentName ?? '—'}</b></span>
+                  <span>المنتجات: <b>{category.productCount}</b></span>
+                  <span>الترتيب: <b>{category.sortOrder}</b></span>
                 </div>
                 <div className="adminBtnRow">
-                  <button type="button" className="adminBtn adminBtnSm" onClick={() => openEdit(category)} disabled={pending}>Edit</button>
-                  <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={() => toggleActive(category)} disabled={pending}>{category.isActive ? 'Disable' : 'Enable'}</button>
-                  <button type="button" className="adminBtn adminBtnDanger adminBtnSm" onClick={() => remove(category)} disabled={pending || category.productCount > 0 || category.childCount > 0}>Delete</button>
+                  <button type="button" className="adminBtn adminBtnSm" onClick={() => openEdit(category)} disabled={pending}>تعديل</button>
+                  <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={() => toggleActive(category)} disabled={pending}>{category.isActive ? 'تعطيل' : 'تفعيل'}</button>
+                  <button type="button" className="adminBtn adminBtnDanger adminBtnSm" onClick={() => remove(category)} disabled={pending || category.productCount > 0 || category.childCount > 0}>حذف</button>
                 </div>
               </div>
             ))}

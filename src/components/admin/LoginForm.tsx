@@ -8,7 +8,7 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <button type="submit" className="adminBtn adminBtnPrimary adminBtnFull" disabled={pending}>
-      {pending ? 'Signing in…' : 'Sign in'}
+      {pending ? 'جارٍ تسجيل الدخول…' : 'تسجيل الدخول'}
     </button>
   );
 }
@@ -24,11 +24,11 @@ export function LoginForm() {
         </div>
       )}
       <div className="adminField">
-        <label htmlFor="admin-email">Email</label>
+        <label htmlFor="admin-email">البريد الإلكتروني</label>
         <input id="admin-email" name="email" type="text" autoComplete="username" autoFocus required placeholder="admin" />
       </div>
       <div className="adminField">
-        <label htmlFor="admin-password">Password</label>
+        <label htmlFor="admin-password">كلمة المرور</label>
         <input id="admin-password" name="password" type="password" autoComplete="current-password" required placeholder="••••••••" />
       </div>
       <SubmitButton />

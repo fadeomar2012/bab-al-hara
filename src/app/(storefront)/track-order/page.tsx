@@ -8,7 +8,7 @@ export default async function TrackOrderPage({ searchParams }: { searchParams?: 
   return (
     <div className="plainPage">
       <div className="pageTitleBlock">
-        <span className="eyebrow">Track order</span>
+        <span className="eyebrow">تتبع الطلب</span>
         <h1>تتبع الطلب</h1>
         <p>تابعي حالة طلبك عبر رقم الطلب ورقم الجوال. الدفع عند الاستلام.</p>
       </div>

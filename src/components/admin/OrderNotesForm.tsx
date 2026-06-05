@@ -32,7 +32,7 @@ export function OrderNotesForm({
         deliveryNote: delivery
       });
       if (result.ok) {
-        setMessage({ kind: 'ok', text: 'Notes saved.' });
+        setMessage({ kind: 'ok', text: 'تم حفظ الملاحظات.' });
         router.refresh();
       } else {
         setMessage({ kind: 'error', text: result.message });
@@ -43,19 +43,19 @@ export function OrderNotesForm({
   return (
     <form className="adminForm" onSubmit={onSubmit}>
       <div className="adminField">
-        <label>Internal note (admin only)</label>
-        <textarea value={internal} onChange={(e) => setInternal(e.target.value)} placeholder="Not shown to the customer or on documents." />
+        <label>ملاحظة داخلية (للمشرف فقط)</label>
+        <textarea value={internal} onChange={(e) => setInternal(e.target.value)} placeholder="لا تظهر للعميل ولا على المستندات." />
       </div>
       <div className="adminField">
-        <label>Packaging note (shown on packing slip)</label>
+        <label>ملاحظة التغليف (تظهر على قائمة التغليف)</label>
         <textarea value={packaging} onChange={(e) => setPackaging(e.target.value)} />
       </div>
       <div className="adminField">
-        <label>Delivery note (admin)</label>
+        <label>ملاحظة التسليم (للمشرف)</label>
         <textarea value={delivery} onChange={(e) => setDelivery(e.target.value)} />
       </div>
       <div className="adminBtnRow">
-        <button type="submit" className="adminBtn adminBtnPrimary" disabled={pending}>{pending ? 'Saving…' : 'Save notes'}</button>
+        <button type="submit" className="adminBtn adminBtnPrimary" disabled={pending}>{pending ? 'جارٍ الحفظ…' : 'حفظ الملاحظات'}</button>
         {message && <span className={message.kind === 'ok' ? 'adminFieldHint' : 'adminFieldError'}>{message.text}</span>}
       </div>
     </form>

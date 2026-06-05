@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { CategoryStrip } from '@/components/CategoryStrip';
+import { ClearableSearchInput } from '@/components/ClearableSearchInput';
 import { ProductGrid } from '@/components/ProductGrid';
 import { getProductsByCategorySlug } from '@/features/catalog/catalog.queries';
 import { normalizeCatalogFilters } from '@/features/catalog/catalog.filters';
@@ -29,17 +30,24 @@ export default async function CategoryPage({
   if (!result) notFound();
 
   const query = filters.q ?? '';
+  const isFiltered = Boolean(
+    query ||
+      (filters.sort && filters.sort !== 'newest') ||
+      (filters.availability && filters.availability !== 'all') ||
+      filters.minPrice != null ||
+      filters.maxPrice != null
+  );
 
   return (
     <div className="categoryPage">
       <section className="categoryHero">
-        <span className="eyebrow">Bab Al Hara Category</span>
+        <span className="eyebrow">تصنيفات باب الحارة</span>
         <h1>{query ? `نتائج البحث: ${query}` : result.category.name}</h1>
-        <p>{query ? 'منتجات مطابقة من كتالوج باب الحارة الحقيقي.' : result.category.description}</p>
+        <p>{query ? 'منتجات مطابقة من كتالوج باب الحارة.' : result.category.description}</p>
       </section>
       <CategoryStrip categories={result.categories} activeSlug={slug} />
-      <form className="utilityRow filterRow" action={`/category/${slug}`}>
-        <input name="q" defaultValue={query} placeholder="بحث داخل التصنيف" aria-label="بحث داخل التصنيف" />
+      <form className="filterRow" action={`/category/${slug}`}>
+        <ClearableSearchInput name="q" defaultValue={query} placeholder="بحث داخل التصنيف" ariaLabel="بحث داخل التصنيف" submitOnClear />
         <select name="sort" defaultValue={filters.sort ?? 'newest'} aria-label="ترتيب المنتجات">
           <option value="newest">الأحدث</option>
           <option value="best-sellers">الأكثر مبيعاً</option>
@@ -51,7 +59,8 @@ export default async function CategoryPage({
           <option value="in-stock">المتوفر فقط</option>
         </select>
         <button type="submit">تطبيق</button>
-        <span>{result.total} منتج</span>
+        {isFiltered ? <a className="filterClear" href={`/category/${slug}`}>مسح الكل</a> : null}
+        <span className="filterCount">{result.total} منتج</span>
       </form>
       <ProductGrid products={result.products} />
     </div>

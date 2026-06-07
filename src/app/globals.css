@@ -1962,3 +1962,80 @@ select.adminInput {
   cursor: pointer;
 }
 .filterRow select { padding-inline-start: 34px; }
+
+/* ============================================================
+   Sprint 8 — Variant Builder + Color Selector
+   ============================================================ */
+
+/* ── Variant Builder panel ── */
+.variantBuilder { display: grid; gap: 18px; }
+.variantBuilderNote {
+  font-size: 13px; line-height: 1.55; padding: 10px 14px;
+  background: rgba(201,166,90,.1); border: 1px solid rgba(201,166,90,.28);
+  border-radius: 13px; color: var(--camel-dark); margin: 0;
+}
+.vbSection { display: grid; gap: 10px; }
+.vbSectionHead { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.vbSectionHead > strong { font-size: 14px; font-weight: var(--weight-bold); }
+.vbColorPickerWrap { background: rgba(255,255,255,.5); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; display: grid; gap: 14px; }
+.vbColorList { display: flex; flex-wrap: wrap; gap: 8px; }
+.vbColorChip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--surface); border: 1px solid var(--border-strong); border-radius: 999px;
+  padding: 6px 12px; font-size: 13px; font-weight: var(--weight-medium);
+}
+.vbChipRemove {
+  border: 0; background: transparent; color: var(--muted); font-size: 16px; line-height: 1;
+  cursor: pointer; padding: 0 2px; transition: color .14s ease;
+}
+.vbChipRemove:hover { color: var(--danger); }
+.vbSizePresets { display: flex; flex-wrap: wrap; gap: 7px; }
+.vbSizePreset {
+  border: 1px solid var(--border-strong); background: var(--surface);
+  border-radius: 8px; padding: 7px 13px; font-size: 13px; font-weight: var(--weight-medium);
+  color: var(--brand-brown); cursor: pointer; transition: background .14s ease, border-color .14s ease;
+}
+.vbSizePreset:hover { background: var(--surface); border-color: var(--brand-camel); }
+.vbSizePreset.isAdded { background: rgba(189,135,84,.2); border-color: var(--brand-camel); color: var(--camel-dark); font-weight: var(--weight-bold); }
+.vbGenerateRow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+/* ── Color Selector ── */
+.colorSelector { display: grid; gap: 12px; }
+.colorPresetsGrid { display: flex; flex-wrap: wrap; gap: 8px; }
+.colorSwatchBtn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  border: 2px solid transparent; border-radius: 10px; padding: 5px 7px;
+  background: transparent; cursor: pointer; transition: border-color .14s ease, background .14s ease;
+  min-width: 40px;
+}
+.colorSwatchBtn:hover { background: rgba(61,42,33,.06); }
+.colorSwatchBtn.isSelected { border-color: var(--brand-camel); background: rgba(201,166,90,.12); }
+.colorSwatchDot { width: 26px; height: 26px; border-radius: 999px; display: block; box-shadow: 0 2px 6px rgba(61,42,33,.18); flex-shrink: 0; }
+.colorSwatchName { font-size: 10px; font-weight: var(--weight-semibold); color: var(--muted); white-space: nowrap; }
+.colorSelectorRow { display: flex; align-items: center; gap: 10px; }
+.colorPreviewCircle {
+  width: 28px; height: 28px; border-radius: 999px; flex: 0 0 auto;
+  box-shadow: 0 2px 6px rgba(61,42,33,.18);
+}
+.colorPreviewCircle.sm { width: 20px; height: 20px; }
+.colorNativeWrap { flex: 0 0 auto; }
+.colorNativeInput {
+  display: block; width: 44px; height: 40px; border-radius: 10px;
+  border: 1px solid var(--border-strong); cursor: pointer; padding: 3px;
+  background: transparent;
+}
+
+/* ── Variant Matrix ── */
+.vmSummary { font-size: 12px; color: var(--muted); margin: 2px 0 0; }
+.vmList { display: grid; gap: 12px; }
+.vmCard {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px; display: grid; gap: 12px;
+  transition: opacity .18s ease;
+}
+.vmCard.vmInactive { opacity: .62; }
+.vmCardHead { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+@media (min-width: 720px) {
+  .vmList { gap: 10px; }
+  .vmCard { padding: 12px 16px; }
+}

@@ -85,7 +85,7 @@ async function main(): Promise<void> {
       if (result.count === 0) missing.push(`banner:${banner.key}(${banner.placement})`);
       else bannersUpdated += result.count;
     }
-  });
+  }, { maxWait: 15000, timeout: 120000 });
 
   console.log(
     `Applied demo Pexels media: ${productsUpdated} product(s) / ${imagesCreated} image(s), ` +

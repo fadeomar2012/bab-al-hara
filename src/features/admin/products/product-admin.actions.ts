@@ -151,9 +151,40 @@ export async function updateProductAction(id: string, input: ProductInput): Prom
       });
     }
 
-    // Sync variants: update existing by id, create new, delete removed (preserves variant ids + inventory logs).
-    const incomingIds = data.variants.filter((variant) => variant.id).map((variant) => variant.id as string);
-    await tx.productVariant.deleteMany({ where: { productId: id, id: { notIn: incomingIds.length ? incomingIds : ['__none__'] } } });
+    // Sync variants.
+    //
+    // SAFETY: ProductVariant rows are referenced by OrderItem and InventoryLog.
+    //   - InventoryLog.variantId has onDelete: Cascade → hard-deleting a variant
+    //     would destroy audit history. Never hard-delete.
+    //   - OrderItem.variantId has onDelete: SetNull → hard-delete is DB-safe but
+    //     loses the live link to historical orders.
+    //
+    // Strategy:
+    //   1. Variants with an id that appear in the payload → update in-place.
+    //   2. Variants with an id that are ABSENT from the payload → mark isActive=false
+    //      (soft-delete; they remain in the DB and all history is preserved).
+    //      The form keeps id-ed variants in the payload (as inactive) when the
+    //      admin uses "Deactivate" so step 2 normally fires only for unexpected
+    //      omissions.
+    //   3. Variants without an id → create new.
+
+    const incomingIds = data.variants
+      .filter((variant) => variant.id)
+      .map((variant) => variant.id as string);
+
+    // Soft-delete any DB variant not present in the incoming payload
+    if (incomingIds.length > 0) {
+      await tx.productVariant.updateMany({
+        where: { productId: id, id: { notIn: incomingIds } },
+        data: { isActive: false }
+      });
+    } else {
+      // No id-ed variants incoming → mark ALL existing ones inactive
+      await tx.productVariant.updateMany({
+        where: { productId: id },
+        data: { isActive: false }
+      });
+    }
 
     for (const variant of data.variants) {
       if (variant.id) {

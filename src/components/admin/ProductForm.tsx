@@ -6,22 +6,14 @@ import { createProductAction, updateProductAction, type ActionIssue } from '@/fe
 import type { ProductInput } from '@/features/admin/products/product-admin.validation';
 import { slugify } from '@/features/admin/shared/admin-format';
 import { ImageUploadButton } from './ImageUploadButton';
+import { VariantBuilder, type VariantState } from './VariantBuilder';
+import { ColorSelector, type ColorValue } from './ColorSelector';
 
 type CategoryOption = { id: string; name: string; isActive: boolean };
-
 type ImageState = { id?: string; url: string; alt: string; isPrimary: boolean; cloudinaryPublicId?: string };
-type VariantState = {
-  id?: string;
-  sku: string;
-  colorName: string;
-  colorValue: string;
-  size: string;
-  price: string;
-  compareAtPrice: string;
-  quantity: string;
-  lowStockThreshold: string;
-  isActive: boolean;
-};
+
+// Re-export so external callers can use the type
+export type { VariantState };
 
 export type ProductFormInitial = {
   id?: string;
@@ -44,45 +36,149 @@ export type ProductFormInitial = {
   variants: VariantState[];
 };
 
-const EMPTY_VARIANT: VariantState = {
-  sku: '',
-  colorName: '',
-  colorValue: '',
-  size: '',
-  price: '',
-  compareAtPrice: '',
-  quantity: '0',
-  lowStockThreshold: '5',
-  isActive: true
-};
-
 export function buildEmptyProduct(): ProductFormInitial {
   return {
-    name: '',
-    slug: '',
-    subtitle: '',
-    description: '',
-    details: [],
-    careInstructions: '',
-    brand: '',
-    categoryId: '',
-    basePrice: '',
-    status: 'DRAFT',
-    isFeatured: false,
-    isNewArrival: false,
-    isBestSeller: false,
-    tags: [],
-    images: [],
-    variants: [{ ...EMPTY_VARIANT }]
+    name: '', slug: '', subtitle: '', description: '', details: [],
+    careInstructions: '', brand: '', categoryId: '', basePrice: '',
+    status: 'DRAFT', isFeatured: false, isNewArrival: false, isBestSeller: false,
+    tags: [], images: [], variants: []
   };
 }
 
 function numberOrUndefined(value: string): number | undefined {
-  const trimmed = value.trim();
-  if (trimmed === '') return undefined;
-  const num = Number(trimmed);
-  return Number.isFinite(num) ? num : undefined;
+  const t = value.trim();
+  if (t === '') return undefined;
+  const n = Number(t);
+  return Number.isFinite(n) ? n : undefined;
 }
+
+// ── Matrix row (editable inline) ─────────────────────────────────────────────
+
+type MatrixRowProps = {
+  variant: VariantState;
+  index: number;
+  errorFor: (path: string) => string | undefined;
+  onChange: (index: number, patch: Partial<VariantState>) => void;
+  onRemove: (index: number) => void;
+};
+
+function MatrixRow({ variant, index, errorFor, onChange, onRemove }: MatrixRowProps) {
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const inactive = !variant.isActive;
+
+  return (
+    <div className={`vmCard${inactive ? ' vmInactive' : ''}`}>
+      <div className="vmCardHead">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          {variant.colorValue && (
+            <span className="colorPreviewCircle sm" style={{ background: variant.colorValue }} aria-hidden="true" />
+          )}
+          <strong style={{ fontSize: 14 }}>
+            {variant.colorName || '—'} · {variant.size || 'مقاس موحد'}
+          </strong>
+          {variant.id && <span className="adminBadge isArchived" style={{ fontSize: 11 }}>موجود</span>}
+          {inactive && <span className="adminBadge stockOut" style={{ fontSize: 11 }}>معطّل</span>}
+        </div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <label className={`adminCheck${variant.isActive ? ' isOn' : ''}`} style={{ minHeight: 0, padding: '5px 10px' }}>
+            <input type="checkbox" checked={variant.isActive} onChange={(e) => onChange(index, { isActive: e.target.checked })} />
+            {variant.isActive ? 'نشط' : 'معطّل'}
+          </label>
+          <button
+            type="button"
+            className="adminBtn adminBtnDanger adminBtnSm"
+            onClick={() => onRemove(index)}
+            title={variant.id ? 'تعطيل الخيار (سيظل موجوداً في الطلبات القديمة)' : 'إزالة الخيار'}
+          >
+            {variant.id ? 'تعطيل' : 'إزالة'}
+          </button>
+        </div>
+      </div>
+
+      <div className="adminRepeatGrid">
+        {/* SKU */}
+        <div className="adminField">
+          <label>الـ SKU *</label>
+          <input
+            className={errorFor(`variants.${index}.sku`) ? 'hasError' : ''}
+            value={variant.sku}
+            onChange={(e) => onChange(index, { sku: e.target.value })}
+          />
+          {errorFor(`variants.${index}.sku`) && (
+            <span className="adminFieldError">{errorFor(`variants.${index}.sku`)}</span>
+          )}
+        </div>
+
+        {/* Size */}
+        <div className="adminField">
+          <label>المقاس</label>
+          <input value={variant.size} onChange={(e) => onChange(index, { size: e.target.value })} />
+        </div>
+
+        {/* Price */}
+        <div className="adminField">
+          <label>السعر (₪) *</label>
+          <input
+            className={errorFor(`variants.${index}.price`) ? 'hasError' : ''}
+            type="number" min="0" step="0.01"
+            value={variant.price}
+            onChange={(e) => onChange(index, { price: e.target.value })}
+          />
+          {errorFor(`variants.${index}.price`) && (
+            <span className="adminFieldError">{errorFor(`variants.${index}.price`)}</span>
+          )}
+        </div>
+
+        {/* Compare-at */}
+        <div className="adminField">
+          <label>قبل الخصم (₪)</label>
+          <input type="number" min="0" step="0.01" value={variant.compareAtPrice} onChange={(e) => onChange(index, { compareAtPrice: e.target.value })} />
+        </div>
+
+        {/* Qty */}
+        <div className="adminField">
+          <label>الكمية *</label>
+          <input
+            className={errorFor(`variants.${index}.quantity`) ? 'hasError' : ''}
+            type="number" min="0" step="1"
+            value={variant.quantity}
+            onChange={(e) => onChange(index, { quantity: e.target.value })}
+          />
+          {errorFor(`variants.${index}.quantity`) && (
+            <span className="adminFieldError">{errorFor(`variants.${index}.quantity`)}</span>
+          )}
+        </div>
+
+        {/* Threshold */}
+        <div className="adminField">
+          <label>حد المخزون المنخفض</label>
+          <input type="number" min="0" step="1" value={variant.lowStockThreshold} onChange={(e) => onChange(index, { lowStockThreshold: e.target.value })} />
+        </div>
+      </div>
+
+      {/* Colour editor (collapsible) */}
+      <div>
+        <button
+          type="button"
+          className="adminBtn adminBtnGhost adminBtnSm"
+          onClick={() => setShowColorPicker((v) => !v)}
+          style={{ marginBottom: showColorPicker ? 10 : 0 }}
+        >
+          {showColorPicker ? 'إغلاق محرر اللون' : '✏️ تعديل اللون'}
+        </button>
+        {showColorPicker && (
+          <ColorSelector
+            colorName={variant.colorName}
+            colorValue={variant.colorValue}
+            onChange={(v: ColorValue) => onChange(index, { colorName: v.colorName, colorValue: v.colorValue })}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── ProductForm ───────────────────────────────────────────────────────────────
 
 export function ProductForm({
   mode,
@@ -98,45 +194,79 @@ export function ProductForm({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
-  const [name, setName] = useState(initial.name);
-  const [slug, setSlug] = useState(initial.slug);
-  const [slugEdited, setSlugEdited] = useState(mode === 'edit');
-  const [subtitle, setSubtitle] = useState(initial.subtitle);
-  const [description, setDescription] = useState(initial.description);
-  const [details, setDetails] = useState(initial.details.join('\n'));
+  // ── Core field state ──────────────────────────────────────────────────────
+  const [name,             setName]             = useState(initial.name);
+  const [slug,             setSlug]             = useState(initial.slug);
+  const [slugEdited,       setSlugEdited]       = useState(mode === 'edit');
+  const [subtitle,         setSubtitle]         = useState(initial.subtitle);
+  const [description,      setDescription]      = useState(initial.description);
+  const [details,          setDetails]          = useState(initial.details.join('\n'));
   const [careInstructions, setCareInstructions] = useState(initial.careInstructions);
-  const [brand, setBrand] = useState(initial.brand);
-  const [categoryId, setCategoryId] = useState(initial.categoryId);
-  const [basePrice, setBasePrice] = useState(initial.basePrice === '' ? '' : String(initial.basePrice));
-  const [compareAtPrice, setCompareAtPrice] = useState(initial.compareAtPrice != null ? String(initial.compareAtPrice) : '');
-  const [status, setStatus] = useState(initial.status);
-  const [isFeatured, setIsFeatured] = useState(initial.isFeatured);
-  const [isNewArrival, setIsNewArrival] = useState(initial.isNewArrival);
-  const [isBestSeller, setIsBestSeller] = useState(initial.isBestSeller);
-  const [tags, setTags] = useState(initial.tags.join(', '));
-  const [images, setImages] = useState<ImageState[]>(initial.images);
-  const [variants, setVariants] = useState<VariantState[]>(initial.variants.length ? initial.variants : [{ ...EMPTY_VARIANT }]);
+  const [brand,            setBrand]            = useState(initial.brand);
+  const [categoryId,       setCategoryId]       = useState(initial.categoryId);
+  const [basePrice,        setBasePrice]        = useState(initial.basePrice === '' ? '' : String(initial.basePrice));
+  const [compareAtPrice,   setCompareAtPrice]   = useState(initial.compareAtPrice != null ? String(initial.compareAtPrice) : '');
+  const [status,           setStatus]           = useState(initial.status);
+  const [isFeatured,       setIsFeatured]       = useState(initial.isFeatured);
+  const [isNewArrival,     setIsNewArrival]     = useState(initial.isNewArrival);
+  const [isBestSeller,     setIsBestSeller]     = useState(initial.isBestSeller);
+  const [tags,             setTags]             = useState(initial.tags.join(', '));
+  const [images,           setImages]           = useState<ImageState[]>(initial.images);
+  const [variants,         setVariants]         = useState<VariantState[]>(initial.variants);
 
   const [formMessage, setFormMessage] = useState<string | null>(null);
-  const [issues, setIssues] = useState<Record<string, string>>({});
+  const [issues,      setIssues]      = useState<Record<string, string>>({});
+  const [showBuilder, setShowBuilder] = useState(true);
 
   const errorFor = (path: string) => issues[path];
 
-  const activeVariantCount = useMemo(() => variants.filter((variant) => variant.isActive).length, [variants]);
+  const activeVariants  = useMemo(() => variants.filter((v) => v.isActive), [variants]);
+  const activeCount     = activeVariants.length;
+  const totalCount      = variants.length;
+  const colorSet        = useMemo(() => new Set(activeVariants.filter((v) => v.colorName).map((v) => v.colorName.toLowerCase())), [activeVariants]);
+  const sizeSet         = useMemo(() => new Set(activeVariants.filter((v) => v.size).map((v) => v.size.toLowerCase())), [activeVariants]);
+
+  // ── Handlers ──────────────────────────────────────────────────────────────
 
   function onNameChange(value: string) {
     setName(value);
     if (!slugEdited) setSlug(slugify(value));
   }
 
+  function updateVariant(index: number, patch: Partial<VariantState>) {
+    setVariants((prev) => prev.map((v, i) => i === index ? { ...v, ...patch } : v));
+  }
+
+  function removeVariant(index: number) {
+    const variant = variants[index];
+    if (variant.id) {
+      // Existing DB record — mark inactive to preserve order/inventory history
+      updateVariant(index, { isActive: false });
+    } else {
+      // Unsaved new row — safe to splice out
+      setVariants((prev) => prev.filter((_, i) => i !== index));
+    }
+  }
+
+  function addManualVariant() {
+    setVariants((prev) => [
+      ...prev,
+      { sku: '', colorName: '', colorValue: '', size: '', price: basePrice, compareAtPrice, quantity: '0', lowStockThreshold: '5', isActive: true }
+    ]);
+  }
+
+  function handleGenerate(newVariants: VariantState[]) {
+    setVariants((prev) => [...prev, ...newVariants]);
+  }
+
+  // ── Image helpers ─────────────────────────────────────────────────────────
+
   function setPrimaryImage(index: number) {
-    setImages((prev) => prev.map((image, i) => ({ ...image, isPrimary: i === index })));
+    setImages((prev) => prev.map((img, i) => ({ ...img, isPrimary: i === index })));
   }
-
   function updateImage(index: number, patch: Partial<ImageState>) {
-    setImages((prev) => prev.map((image, i) => (i === index ? { ...image, ...patch } : image)));
+    setImages((prev) => prev.map((img, i) => i === index ? { ...img, ...patch } : img));
   }
-
   function addUploadedImage(image: { secureUrl: string; publicId: string }) {
     setImages((prev) => [
       ...prev,
@@ -144,46 +274,44 @@ export function ProductForm({
     ]);
   }
 
-  function updateVariant(index: number, patch: Partial<VariantState>) {
-    setVariants((prev) => prev.map((variant, i) => (i === index ? { ...variant, ...patch } : variant)));
-  }
+  // ── Payload + submit ──────────────────────────────────────────────────────
 
   function buildPayload(): ProductInput {
     return {
       name: name.trim(),
       slug: slug.trim(),
-      subtitle: subtitle.trim() || undefined,
-      description: description.trim(),
-      details: details.split('\n').map((line) => line.trim()).filter(Boolean),
+      subtitle:         subtitle.trim()         || undefined,
+      description:      description.trim(),
+      details:          details.split('\n').map((l) => l.trim()).filter(Boolean),
       careInstructions: careInstructions.trim() || undefined,
-      brand: brand.trim() || undefined,
+      brand:            brand.trim()            || undefined,
       categoryId,
-      basePrice: numberOrUndefined(basePrice) ?? Number.NaN,
+      basePrice:    numberOrUndefined(basePrice)      ?? Number.NaN,
       compareAtPrice: numberOrUndefined(compareAtPrice),
       status,
       isFeatured,
       isNewArrival,
       isBestSeller,
-      tags: tags.split(',').map((tag) => tag.trim()).filter(Boolean),
-      images: images.map((image, index) => ({
-        id: image.id,
-        url: image.url.trim(),
-        alt: image.alt.trim() || undefined,
-        sortOrder: index,
-        isPrimary: image.isPrimary,
-        cloudinaryPublicId: image.cloudinaryPublicId?.trim() || undefined
+      tags:   tags.split(',').map((t) => t.trim()).filter(Boolean),
+      images: images.map((img, i) => ({
+        id:  img.id,
+        url: img.url.trim(),
+        alt: img.alt.trim() || undefined,
+        sortOrder: i,
+        isPrimary: img.isPrimary,
+        cloudinaryPublicId: img.cloudinaryPublicId?.trim() || undefined
       })),
-      variants: variants.map((variant) => ({
-        id: variant.id,
-        sku: variant.sku.trim(),
-        colorName: variant.colorName.trim() || undefined,
-        colorValue: variant.colorValue.trim() || undefined,
-        size: variant.size.trim() || undefined,
-        price: numberOrUndefined(variant.price) ?? Number.NaN,
-        compareAtPrice: numberOrUndefined(variant.compareAtPrice),
-        quantity: numberOrUndefined(variant.quantity) ?? 0,
-        lowStockThreshold: numberOrUndefined(variant.lowStockThreshold) ?? 0,
-        isActive: variant.isActive
+      variants: variants.map((v) => ({
+        id:               v.id,
+        sku:              v.sku.trim(),
+        colorName:        v.colorName.trim() || undefined,
+        colorValue:       v.colorValue.trim() || undefined,
+        size:             v.size.trim()      || undefined,
+        price:            numberOrUndefined(v.price) ?? Number.NaN,
+        compareAtPrice:   numberOrUndefined(v.compareAtPrice),
+        quantity:         numberOrUndefined(v.quantity) ?? 0,
+        lowStockThreshold: numberOrUndefined(v.lowStockThreshold) ?? 0,
+        isActive:         v.isActive
       }))
     };
   }
@@ -192,34 +320,33 @@ export function ProductForm({
     event.preventDefault();
     setFormMessage(null);
     setIssues({});
-
     const payload = buildPayload();
+
     startTransition(async () => {
       const result = mode === 'create'
         ? await createProductAction(payload)
         : await updateProductAction(productId as string, payload);
 
-      // On success the action redirects; we only get here on failure.
       if (result && !result.ok) {
         setFormMessage(result.message);
         const map: Record<string, string> = {};
-        result.issues.forEach((issue: ActionIssue) => {
-          map[issue.path] = issue.message;
-        });
+        result.issues.forEach((issue: ActionIssue) => { map[issue.path] = issue.message; });
         setIssues(map);
         if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
   }
 
+  // ── Render ────────────────────────────────────────────────────────────────
+
   return (
     <form className="adminForm" onSubmit={handleSubmit}>
       {formMessage && <div className="adminAlert isError" role="alert">{formMessage}</div>}
-      {status === 'ACTIVE' && activeVariantCount === 0 && (
+      {status === 'ACTIVE' && activeCount === 0 && (
         <div className="adminAlert isInfo">يحتاج المنتج النشط إلى خيار نشط واحد على الأقل قبل أن يُحفظ.</div>
       )}
 
-      {/* Basics */}
+      {/* ── Basics ── */}
       <div className="adminCard">
         <div className="adminCardHeader"><h2>أساسيات المنتج</h2></div>
         <div className="adminFormGrid two">
@@ -268,7 +395,7 @@ export function ProductForm({
         </div>
       </div>
 
-      {/* Pricing & status */}
+      {/* ── Pricing & status ── */}
       <div className="adminCard">
         <div className="adminCardHeader"><h2>التسعير والحالة</h2></div>
         <div className="adminFormGrid two">
@@ -276,8 +403,8 @@ export function ProductForm({
             <label htmlFor="p-category">التصنيف *</label>
             <select id="p-category" className={errorFor('categoryId') ? 'hasError' : ''} value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required>
               <option value="">اختر تصنيفاً…</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>{category.name}{category.isActive ? '' : ' (معطّل)'}</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.name}{cat.isActive ? '' : ' (معطّل)'}</option>
               ))}
             </select>
             {errorFor('categoryId') && <span className="adminFieldError">{errorFor('categoryId')}</span>}
@@ -303,13 +430,13 @@ export function ProductForm({
           </div>
         </div>
         <div className="adminCheckRow" style={{ marginTop: 13 }}>
-          <label className={`adminCheck${isFeatured ? ' isOn' : ''}`}><input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} /> مميز</label>
-          <label className={`adminCheck${isNewArrival ? ' isOn' : ''}`}><input type="checkbox" checked={isNewArrival} onChange={(e) => setIsNewArrival(e.target.checked)} /> وصل حديثاً</label>
-          <label className={`adminCheck${isBestSeller ? ' isOn' : ''}`}><input type="checkbox" checked={isBestSeller} onChange={(e) => setIsBestSeller(e.target.checked)} /> الأكثر مبيعاً</label>
+          <label className={`adminCheck${isFeatured  ? ' isOn' : ''}`}><input type="checkbox" checked={isFeatured}  onChange={(e) => setIsFeatured(e.target.checked)}  /> مميز</label>
+          <label className={`adminCheck${isNewArrival? ' isOn' : ''}`}><input type="checkbox" checked={isNewArrival} onChange={(e) => setIsNewArrival(e.target.checked)} /> وصل حديثاً</label>
+          <label className={`adminCheck${isBestSeller? ' isOn' : ''}`}><input type="checkbox" checked={isBestSeller} onChange={(e) => setIsBestSeller(e.target.checked)} /> الأكثر مبيعاً</label>
         </div>
       </div>
 
-      {/* Images */}
+      {/* ── Images ── */}
       <div className="adminCard">
         <div className="adminCardHeader">
           <div><h2>الصور</h2><p className="adminMuted">ارفعي صورة من جهازك أو أدخلي رابط الصورة يدوياً. الصورة الرئيسية تظهر أولاً.</p></div>
@@ -354,62 +481,68 @@ export function ProductForm({
         )}
       </div>
 
-      {/* Variants */}
+      {/* ── Variant Builder ── */}
       <div className="adminCard">
         <div className="adminCardHeader">
-          <div><h2>الخيارات</h2><p className="adminMuted">{activeVariantCount} نشط · {variants.length} إجمالاً. يجب أن تكون قيم الـ SKU فريدة.</p></div>
-          <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={() => setVariants((prev) => [...prev, { ...EMPTY_VARIANT }])}>+ إضافة خيار</button>
-        </div>
-        {variants.map((variant, index) => (
-          <div className="adminRepeatRow" key={index}>
-            <div className="adminRepeatHeader">
-              <strong>الخيار {index + 1}{variant.sku ? ` · ${variant.sku}` : ''}</strong>
-              {variants.length > 1 && (
-                <button type="button" className="adminBtn adminBtnDanger adminBtnSm" onClick={() => setVariants((prev) => prev.filter((_, i) => i !== index))}>إزالة</button>
-              )}
-            </div>
-            <div className="adminRepeatGrid">
-              <div className="adminField">
-                <label>الـ SKU *</label>
-                <input className={errorFor(`variants.${index}.sku`) ? 'hasError' : ''} value={variant.sku} onChange={(e) => updateVariant(index, { sku: e.target.value })} />
-                {errorFor(`variants.${index}.sku`) && <span className="adminFieldError">{errorFor(`variants.${index}.sku`)}</span>}
-              </div>
-              <div className="adminField">
-                <label>المقاس</label>
-                <input value={variant.size} onChange={(e) => updateVariant(index, { size: e.target.value })} />
-              </div>
-              <div className="adminField">
-                <label>اسم اللون</label>
-                <input value={variant.colorName} onChange={(e) => updateVariant(index, { colorName: e.target.value })} />
-              </div>
-              <div className="adminField">
-                <label>قيمة اللون (hex)</label>
-                <input value={variant.colorValue} onChange={(e) => updateVariant(index, { colorValue: e.target.value })} placeholder="#bd8754" />
-              </div>
-              <div className="adminField">
-                <label>السعر (₪) *</label>
-                <input className={errorFor(`variants.${index}.price`) ? 'hasError' : ''} type="number" min="0" step="0.01" value={variant.price} onChange={(e) => updateVariant(index, { price: e.target.value })} />
-                {errorFor(`variants.${index}.price`) && <span className="adminFieldError">{errorFor(`variants.${index}.price`)}</span>}
-              </div>
-              <div className="adminField">
-                <label>السعر قبل الخصم (₪)</label>
-                <input type="number" min="0" step="0.01" value={variant.compareAtPrice} onChange={(e) => updateVariant(index, { compareAtPrice: e.target.value })} />
-              </div>
-              <div className="adminField">
-                <label>الكمية *</label>
-                <input className={errorFor(`variants.${index}.quantity`) ? 'hasError' : ''} type="number" min="0" step="1" value={variant.quantity} onChange={(e) => updateVariant(index, { quantity: e.target.value })} />
-                {errorFor(`variants.${index}.quantity`) && <span className="adminFieldError">{errorFor(`variants.${index}.quantity`)}</span>}
-              </div>
-              <div className="adminField">
-                <label>حد المخزون المنخفض</label>
-                <input type="number" min="0" step="1" value={variant.lowStockThreshold} onChange={(e) => updateVariant(index, { lowStockThreshold: e.target.value })} />
-              </div>
-            </div>
-            <label className={`adminCheck${variant.isActive ? ' isOn' : ''}`} style={{ width: 'fit-content' }}>
-              <input type="checkbox" checked={variant.isActive} onChange={(e) => updateVariant(index, { isActive: e.target.checked })} /> خيار نشط
-            </label>
+          <div>
+            <h2>منشئ الخيارات</h2>
+            <p className="adminMuted">حدد الألوان والمقاسات مرة واحدة ثم اضغط &quot;توليد الخيارات&quot;.</p>
           </div>
-        ))}
+          <button
+            type="button"
+            className="adminBtn adminBtnGhost adminBtnSm"
+            onClick={() => setShowBuilder((v) => !v)}
+          >
+            {showBuilder ? 'طي المنشئ' : 'فتح المنشئ'}
+          </button>
+        </div>
+        {showBuilder && (
+          <VariantBuilder
+            productSlug={slug}
+            basePrice={basePrice}
+            baseCompareAtPrice={compareAtPrice}
+            existingVariants={variants}
+            onGenerate={handleGenerate}
+          />
+        )}
+      </div>
+
+      {/* ── Variant Matrix ── */}
+      <div className="adminCard">
+        <div className="adminCardHeader">
+          <div>
+            <h2>الخيارات الناتجة</h2>
+            <p className="vmSummary">
+              {colorSet.size > 0 ? `${colorSet.size} ألوان · ` : ''}
+              {sizeSet.size > 0 ? `${sizeSet.size} مقاسات · ` : ''}
+              {totalCount} خيار · {activeCount} نشط
+            </p>
+          </div>
+          <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={addManualVariant}>+ إضافة يدوي</button>
+        </div>
+
+        {errorFor('variants') && <div className="adminAlert isError" style={{ marginBottom: 10 }}>{errorFor('variants')}</div>}
+
+        {variants.length === 0 ? (
+          <div className="adminEmptyState">
+            <span className="adminEmptyIcon">📦</span>
+            <strong className="adminEmptyTitle">لا توجد خيارات بعد</strong>
+            <p className="adminEmptyDesc">استخدم منشئ الخيارات أعلاه لتوليد مجموعة ألوان ومقاسات، أو أضف خياراً يدوياً.</p>
+          </div>
+        ) : (
+          <div className="vmList">
+            {variants.map((variant, index) => (
+              <MatrixRow
+                key={variant.id ?? `new-${index}`}
+                variant={variant}
+                index={index}
+                errorFor={errorFor}
+                onChange={updateVariant}
+                onRemove={removeVariant}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="adminBtnRow">

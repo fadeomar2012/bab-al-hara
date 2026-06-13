@@ -15,7 +15,9 @@
     "db:studio": "prisma studio",
     "media:upload": "tsx scripts/upload-demo-media.ts",
     "media:apply": "tsx scripts/apply-demo-media.ts",
-    "db:demo-media": "tsx scripts/apply-demo-pexels-media.ts"
+    "db:demo-media": "tsx scripts/apply-demo-pexels-media.ts",
+    "db:backfill-sold-count": "tsx scripts/backfill-sold-count.ts",
+    "db:audit-commerce": "tsx scripts/audit-commerce-integrity.ts"
   },
   "dependencies": {
     "@prisma/client": "6.19.0",

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getOrderByNumber } from '@/features/orders/order.queries';
 import { maskPhone } from '@/features/orders/order.mappers';
-import { STATUS_LABEL_AR } from '@/features/admin/orders/order-admin.validation';
+import { ORDER_STATUS_LABEL_AR } from '@/features/orders/order-status.labels';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,8 +36,9 @@ export default async function OrderSuccessPage({ searchParams }: { searchParams?
         <p>سنتواصل معك لتأكيد الطلب قبل التجهيز. طريقة الدفع: <strong>كاش عند الاستلام</strong>.</p>
         <div className="orderBadgeRow">
           <span className="orderNumberPill">رقم الطلب: <strong>{order.orderNumber}</strong></span>
-          <span className={`orderStatusBadge status-${order.status}`}>{STATUS_LABEL_AR[order.status]}</span>
+          <span className={`orderStatusBadge status-${order.status}`}>{ORDER_STATUS_LABEL_AR[order.status]}</span>
         </div>
+        <p className="localOrderHint">تم حفظ هذا الطلب على هذا الجهاز لتسهيل تتبعه لاحقاً. يمكنك إخفاؤه من صفحة تتبع الطلب.</p>
       </div>
 
       <div className="formCard">

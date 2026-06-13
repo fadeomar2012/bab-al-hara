@@ -1,4 +1,5 @@
 import type { OrderStatus } from '@prisma/client';
+import { ORDER_STATUS_LABEL, ORDER_STATUS_LABEL_AR } from '@/features/orders/order-status.labels';
 
 /** Allowed forward transitions. Cancel is permitted from any active (non-terminal) status. */
 export const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
@@ -22,20 +23,5 @@ export const STATUS_TIMESTAMP_FIELD: Partial<Record<OrderStatus, 'confirmedAt' |
   CANCELED: 'canceledAt'
 };
 
-export const STATUS_LABEL: Record<OrderStatus, string> = {
-  PENDING: 'Pending',
-  CONFIRMED: 'Confirmed',
-  PROCESSING: 'Processing',
-  SHIPPED: 'Shipped',
-  DELIVERED: 'Delivered',
-  CANCELED: 'Canceled'
-};
-
-export const STATUS_LABEL_AR: Record<OrderStatus, string> = {
-  PENDING: 'بانتظار التأكيد',
-  CONFIRMED: 'تم التأكيد',
-  PROCESSING: 'قيد التجهيز',
-  SHIPPED: 'تم الشحن',
-  DELIVERED: 'تم التسليم',
-  CANCELED: 'ملغي'
-};
+export const STATUS_LABEL = ORDER_STATUS_LABEL;
+export const STATUS_LABEL_AR = ORDER_STATUS_LABEL_AR;

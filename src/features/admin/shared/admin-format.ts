@@ -2,16 +2,34 @@ import type { ProductStockState } from '@/features/catalog/catalog.types';
 
 export const ADMIN_CURRENCY = '₪';
 
-/** Build a URL-safe slug from arbitrary text (supports Arabic by keeping unicode letters). */
+const ARABIC_TRANSLITERATION: Record<string, string> = {
+  'ا': 'a', 'أ': 'a', 'إ': 'i', 'آ': 'a', 'ء': '', 'ئ': 'e', 'ؤ': 'o',
+  'ب': 'b', 'ت': 't', 'ث': 'th', 'ج': 'j', 'ح': 'h', 'خ': 'kh',
+  'د': 'd', 'ذ': 'th', 'ر': 'r', 'ز': 'z', 'س': 's', 'ش': 'sh',
+  'ص': 's', 'ض': 'd', 'ط': 't', 'ظ': 'z', 'ع': 'a', 'غ': 'gh',
+  'ف': 'f', 'ق': 'q', 'ك': 'k', 'ل': 'l', 'م': 'm', 'ن': 'n',
+  'ه': 'h', 'ة': 'h', 'و': 'w', 'ي': 'y', 'ى': 'a',
+  '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
+};
+
+function transliterateArabic(input: string): string {
+  return Array.from(input).map((char) => ARABIC_TRANSLITERATION[char] ?? char).join('');
+}
+
+/** Build a readable URL-safe slug from arbitrary text, including Arabic product names. */
 export function slugify(input: string): string {
-  return input
+  const transliterated = transliterateArabic(input);
+  const slug = transliterated
     .toString()
     .trim()
     .toLowerCase()
     .replace(/['"]/g, '')
-    .replace(/[^\p{Letter}\p{Number}]+/gu, '-')
+    .replace(/[^a-z0-9\p{Letter}\p{Number}]+/gu, '-')
     .replace(/^-+|-+$/g, '')
     .replace(/-{2,}/g, '-');
+
+  if (slug) return slug;
+  return `product-${Date.now().toString(36)}`;
 }
 
 export function formatCurrency(value: number): string {

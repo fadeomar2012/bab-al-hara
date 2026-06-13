@@ -103,14 +103,14 @@ export const productInputSchema = z
     const comboSeen = new Map<string, number>();
     data.variants.forEach((variant, index) => {
       if (!variant.isActive) return; // inactive combos are fine to duplicate
-      const colorKey = (variant.colorValue ?? variant.colorName ?? '').toLowerCase();
-      const sizeKey  = (variant.size ?? '').toLowerCase();
+      const colorKey = (variant.colorValue ?? variant.colorName ?? '').trim().toLowerCase();
+      const sizeKey  = (variant.size ?? '').trim().toLowerCase();
       const combo    = `${colorKey}||${sizeKey}`;
       if (comboSeen.has(combo)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'لا يمكن تكرار نفس اللون والمقاس أكثر من مرة في الخيارات النشطة',
-          path: ['variants', index, 'sku']
+          path: ['variants', index, 'size']
         });
       } else {
         comboSeen.set(combo, index);

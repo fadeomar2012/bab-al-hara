@@ -6,6 +6,7 @@ import { CartSummary } from './CartSummary';
 import { EmptyState } from './EmptyState';
 import { useCart } from './CartProvider';
 import { createCodOrderAction } from '@/features/orders/order.actions';
+import { saveRecentOrder } from '@/features/orders/recent-orders.client';
 import type { OrderStockError } from '@/features/orders/order.types';
 
 const governorates = ['غزة', 'شمال غزة', 'دير البلح', 'خانيونس', 'رفح', 'الضفة الغربية', 'القدس'];
@@ -63,6 +64,15 @@ export function CheckoutForm() {
       } catch {
         /* ignore */
       }
+      saveRecentOrder({
+        orderNumber: result.orderNumber,
+        phone: fields.phone,
+        customerName: fields.name,
+        city: fields.city,
+        area: fields.area,
+        total: result.total,
+        createdAt: new Date().toISOString()
+      });
       clearCart();
       router.push(`/order-success?order=${encodeURIComponent(result.orderNumber)}`);
       return;

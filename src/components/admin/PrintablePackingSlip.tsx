@@ -34,6 +34,7 @@ export function PrintablePackingSlip({
           <h2>التوصيل إلى</h2>
           <div>{order.customerName}</div>
           <div>{order.customerPhone}</div>
+          {order.customerWhatsappPhone && <div>واتساب: {order.customerWhatsappPhone}</div>}
           <div>{order.city} · {order.area}</div>
           <div>{order.address}</div>
         </div>

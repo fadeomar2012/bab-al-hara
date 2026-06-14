@@ -20,9 +20,7 @@ const EMPTY: ProductFormInitial = {
   isBestSeller: false,
   tags: [],
   images: [],
-  variants: [
-    { sku: '', colorName: '', colorValue: '', size: '', price: '', compareAtPrice: '', quantity: '0', lowStockThreshold: '5', isActive: true }
-  ]
+  variants: []
 };
 
 export default async function NewProductPage() {

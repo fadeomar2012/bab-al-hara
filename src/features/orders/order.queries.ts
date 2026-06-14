@@ -1,12 +1,46 @@
 import 'server-only';
 import { prisma } from '@/lib/prisma';
 import { normalizePhone } from './order.validation';
-import { mapOrderView } from './order.mappers';
+import { decimalToNumber, mapOrderView } from './order.mappers';
 import type { OrderView } from './order.types';
 
 const orderWithItems = { items: { orderBy: { createdAt: 'asc' } } } as const;
 
-/** Load an order for the success page (by order number only). */
+export type OrderSuccessSummary = Pick<
+  OrderView,
+  'orderNumber' | 'status' | 'deliveryFeeStatus' | 'subtotal' | 'total' | 'createdAt'
+>;
+
+/**
+ * Minimal public success-page lookup.
+ * Do not load or render customer phone/address/items from an order-number-only URL.
+ */
+export async function getOrderSuccessSummaryByNumber(orderNumber: string): Promise<OrderSuccessSummary | null> {
+  const order = await prisma.order.findUnique({
+    where: { orderNumber: orderNumber.trim() },
+    select: {
+      orderNumber: true,
+      status: true,
+      deliveryFeeStatus: true,
+      subtotal: true,
+      total: true,
+      createdAt: true
+    }
+  });
+
+  return order
+    ? {
+        orderNumber: order.orderNumber,
+        status: order.status,
+        deliveryFeeStatus: order.deliveryFeeStatus,
+        subtotal: decimalToNumber(order.subtotal),
+        total: decimalToNumber(order.total),
+        createdAt: order.createdAt
+      }
+    : null;
+}
+
+/** Load a full order view only for trusted flows that already verify ownership. */
 export async function getOrderByNumber(orderNumber: string): Promise<OrderView | null> {
   const order = await prisma.order.findUnique({
     where: { orderNumber: orderNumber.trim() },

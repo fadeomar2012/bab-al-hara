@@ -36,6 +36,7 @@ export function PrintableInvoice({
           <h2>بيانات العميل</h2>
           <div>{order.customerName}</div>
           <div>{order.customerPhone}</div>
+          {order.customerWhatsappPhone && <div>واتساب: {order.customerWhatsappPhone}</div>}
           <div>{order.city} · {order.area}</div>
           <div>{order.address}</div>
         </div>
@@ -72,9 +73,9 @@ export function PrintableInvoice({
 
       <div className="printTotals">
         <div><span>المجموع الفرعي</span><strong>{formatCurrency(order.subtotal)}</strong></div>
-        <div><span>التوصيل</span><strong>{order.deliveryFee === 0 ? 'مجاني' : formatCurrency(order.deliveryFee)}</strong></div>
+        <div><span>التوصيل</span><strong>{order.deliveryFeeStatus === 'PENDING' ? 'بانتظار التحديد' : order.deliveryFeeStatus === 'FREE' ? 'مجاني' : formatCurrency(order.deliveryFee)}</strong></div>
         {order.discount > 0 && <div><span>الخصم</span><strong>−{formatCurrency(order.discount)}</strong></div>}
-        <div className="grand"><span>الإجمالي</span><strong>{formatCurrency(order.total)}</strong></div>
+        <div className="grand"><span>{order.deliveryFeeStatus === 'PENDING' ? 'الإجمالي قبل التوصيل' : 'الإجمالي'}</span><strong>{formatCurrency(order.total)}</strong></div>
         <div className="printPayment">طريقة الدفع: الدفع عند الاستلام</div>
       </div>
 

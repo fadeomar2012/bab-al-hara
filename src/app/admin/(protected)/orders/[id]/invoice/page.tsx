@@ -10,9 +10,13 @@ export default async function OrderInvoicePage({ params }: { params: Promise<{ i
   const data = await getOrderForPrint(id);
   if (!data) notFound();
 
+  const disabledReason = data.order.deliveryFeeStatus === 'PENDING'
+    ? 'حدد سعر التوصيل أو اعتمده مجانياً قبل طباعة الفاتورة النهائية.'
+    : undefined;
+
   return (
     <div className="printPage">
-      <PrintTrigger orderId={id} type="invoice" backHref={`/admin/orders/${id}`} />
+      <PrintTrigger orderId={id} type="invoice" backHref={`/admin/orders/${id}`} disabledReason={disabledReason} />
       <PrintableInvoice order={data.order} invoiceNumber={data.invoiceNumber} qrDataUrl={data.qrDataUrl} />
     </div>
   );

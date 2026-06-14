@@ -2,19 +2,33 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import type { OrderStatus } from '@prisma/client';
+import type { DeliveryFeeStatus, OrderStatus } from '@prisma/client';
 import { updateOrderStatusAction } from '@/features/admin/orders/order-admin.actions';
 import { ALLOWED_TRANSITIONS, STATUS_LABEL_AR } from '@/features/admin/orders/order-admin.validation';
 
-export function OrderStatusActions({ orderId, status }: { orderId: string; status: OrderStatus }) {
+export function OrderStatusActions({
+  orderId,
+  status,
+  deliveryFeeStatus
+}: {
+  orderId: string;
+  status: OrderStatus;
+  deliveryFeeStatus: DeliveryFeeStatus;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
   const nextStatuses = ALLOWED_TRANSITIONS[status] ?? [];
+  const deliveryPending = deliveryFeeStatus === 'PENDING';
 
   function run(next: OrderStatus) {
     setError(null);
+    if (next === 'SHIPPED' && deliveryPending) {
+      setError('حدد سعر التوصيل أو اعتمده مجانياً قبل تحويل الطلب إلى تم الشحن.');
+      return;
+    }
+
     let note: string | undefined;
     if (next === 'CANCELED') {
       const confirmed = window.confirm('هل تريد إلغاء هذا الطلب؟ ستتم إعادة الكمية إلى المخزون.');
@@ -37,18 +51,27 @@ export function OrderStatusActions({ orderId, status }: { orderId: string; statu
 
   return (
     <div>
+      {deliveryPending && nextStatuses.includes('SHIPPED') && (
+        <div className="adminAlert isInfo" style={{ marginBottom: 10 }}>
+          لا يمكن تحويل الطلب إلى تم الشحن قبل تحديد سعر التوصيل أو اعتماده مجانياً.
+        </div>
+      )}
       <div className="adminBtnRow">
-        {nextStatuses.map((next) => (
-          <button
-            key={next}
-            type="button"
-            className={`adminBtn ${next === 'CANCELED' ? 'adminBtnDanger' : 'adminBtnPrimary'}`}
-            disabled={pending}
-            onClick={() => run(next)}
-          >
-            {next === 'CANCELED' ? 'إلغاء الطلب' : `تحديد كـ ${STATUS_LABEL_AR[next]}`}
-          </button>
-        ))}
+        {nextStatuses.map((next) => {
+          const disabledByDelivery = next === 'SHIPPED' && deliveryPending;
+          return (
+            <button
+              key={next}
+              type="button"
+              className={`adminBtn ${next === 'CANCELED' ? 'adminBtnDanger' : 'adminBtnPrimary'}`}
+              disabled={pending || disabledByDelivery}
+              onClick={() => run(next)}
+              title={disabledByDelivery ? 'حدد سعر التوصيل أولاً' : undefined}
+            >
+              {next === 'CANCELED' ? 'إلغاء الطلب' : `تحديد كـ ${STATUS_LABEL_AR[next]}`}
+            </button>
+          );
+        })}
       </div>
       {error && <div className="adminAlert isError" style={{ marginTop: 10 }}>{error}</div>}
     </div>

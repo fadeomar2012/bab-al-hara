@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { CartLine } from '@/lib/types';
-import { calcDeliveryFee } from '@/features/orders/order-pricing';
+import { calcLineTotal, calcOrderTotals } from '@/features/orders/order-pricing';
 
 type AddToCartInput = CartLine;
 
@@ -22,7 +22,7 @@ const CartContext = createContext<CartContextValue | null>(null);
 const STORAGE_KEY = 'bab-al-hara-cart-v2';
 
 function getLinePrice(line: CartLine) {
-  return line.unitPrice * line.quantity;
+  return calcLineTotal(line.unitPrice, line.quantity);
 }
 
 function sanitizeLine(line: CartLine): CartLine | null {
@@ -48,11 +48,18 @@ function readInitialCart() {
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [lines, setLines] = useState<CartLine[]>(readInitialCart);
+  const [lines, setLines] = useState<CartLine[]>([]);
+  const [isCartLoaded, setIsCartLoaded] = useState(false);
 
   useEffect(() => {
+    setLines(readInitialCart());
+    setIsCartLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isCartLoaded) return;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(lines));
-  }, [lines]);
+  }, [isCartLoaded, lines]);
 
   const addToCart = useCallback((input: AddToCartInput) => {
     const sanitized = sanitizeLine(input);
@@ -87,8 +94,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const subtotal = useMemo(() => lines.reduce((sum, line) => sum + getLinePrice(line), 0), [lines]);
   const itemCount = useMemo(() => lines.reduce((sum, line) => sum + line.quantity, 0), [lines]);
-  const deliveryFee = calcDeliveryFee(subtotal);
-  const total = subtotal + deliveryFee;
+  const totals = calcOrderTotals(subtotal);
+  const deliveryFee = totals.deliveryFee;
+  const total = totals.total;
 
   const value = useMemo(
     () => ({ lines, itemCount, subtotal, deliveryFee, total, addToCart, updateQuantity, removeLine, clearCart }),

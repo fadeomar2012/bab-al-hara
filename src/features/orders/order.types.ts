@@ -1,4 +1,4 @@
-import type { OrderStatus, PaymentMethod } from '@prisma/client';
+import type { DeliveryFeeStatus, OrderStatus, PaymentMethod } from '@prisma/client';
 
 export type CheckoutLineInput = {
   variantId: string;
@@ -8,6 +8,7 @@ export type CheckoutLineInput = {
 export type CheckoutInput = {
   fullName: string;
   phone: string;
+  whatsappPhone?: string;
   city: string;
   area: string;
   address: string;
@@ -57,12 +58,14 @@ export type OrderView = {
   paymentMethod: PaymentMethod;
   customerName: string;
   customerPhone: string;
+  customerWhatsappPhone?: string;
   city: string;
   area: string;
   address: string;
   notes?: string;
   subtotal: number;
   deliveryFee: number;
+  deliveryFeeStatus: DeliveryFeeStatus;
   discount: number;
   total: number;
   createdAt: Date;

@@ -26,18 +26,29 @@ const optionalText = z
   .optional()
   .transform((value) => (value ? value : undefined));
 
+const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/;
+
 export const variantInputSchema = z.object({
   id: z.string().optional(),
-  sku: z.string().trim().min(1, 'SKU is required').max(64, 'SKU is too long'),
+  sku: z.string().trim().min(1, 'رقم SKU مطلوب').max(64, 'رقم SKU طويل جداً'),
   colorName: optionalText,
-  colorValue: optionalText,
+  // If colorValue is provided, it must be a valid 6-digit hex colour.
+  colorValue: z
+    .string()
+    .trim()
+    .optional()
+    .transform((v) => (v ? v : undefined))
+    .refine(
+      (v) => !v || HEX_PATTERN.test(v),
+      'أدخل كود لون صحيح مثل #111827'
+    ),
   size: optionalText,
-  price: z.coerce.number().min(0, 'Price must be ≥ 0'),
+  price:         z.coerce.number().min(0, 'السعر غير صالح'),
   compareAtPrice: z
-    .union([z.coerce.number().min(0, 'Compare-at price must be ≥ 0'), z.literal('').transform(() => undefined)])
+    .union([z.coerce.number().min(0, 'السعر قبل الخصم غير صالح'), z.literal('').transform(() => undefined)])
     .optional(),
-  quantity: z.coerce.number().int('Quantity must be a whole number').min(0, 'Quantity must be ≥ 0'),
-  lowStockThreshold: z.coerce.number().int('Threshold must be a whole number').min(0, 'Threshold must be ≥ 0'),
+  quantity:          z.coerce.number().int('الكمية يجب أن تكون رقماً صحيحاً').min(0, 'الكمية لا يمكن أن تكون أقل من صفر'),
+  lowStockThreshold: z.coerce.number().int('الحد يجب أن يكون رقماً صحيحاً').min(0, 'الحد لا يمكن أن يكون أقل من صفر'),
   isActive: z.boolean()
 });
 
@@ -73,22 +84,40 @@ export const productInputSchema = z
     variants: z.array(variantInputSchema).default([])
   })
   .superRefine((data, ctx) => {
-    // Unique SKUs within the form
-    const seen = new Map<string, number>();
+    // 1 — Unique SKUs within the form
+    const skuSeen = new Map<string, number>();
     data.variants.forEach((variant, index) => {
       const key = variant.sku.trim().toLowerCase();
-      if (seen.has(key)) {
+      if (skuSeen.has(key)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `Duplicate SKU "${variant.sku}" in this product`,
+          message: `رقم SKU مكرر "${variant.sku}"`,
           path: ['variants', index, 'sku']
         });
       } else {
-        seen.set(key, index);
+        skuSeen.set(key, index);
       }
     });
 
-    // Exactly one primary image (if any images exist)
+    // 2 — No duplicate active color + size combos
+    const comboSeen = new Map<string, number>();
+    data.variants.forEach((variant, index) => {
+      if (!variant.isActive) return; // inactive combos are fine to duplicate
+      const colorKey = (variant.colorValue ?? variant.colorName ?? '').trim().toLowerCase();
+      const sizeKey  = (variant.size ?? '').trim().toLowerCase();
+      const combo    = `${colorKey}||${sizeKey}`;
+      if (comboSeen.has(combo)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'لا يمكن تكرار نفس اللون والمقاس أكثر من مرة في الخيارات النشطة',
+          path: ['variants', index, 'size']
+        });
+      } else {
+        comboSeen.set(combo, index);
+      }
+    });
+
+    // 3 — Exactly one primary image (if any)
     const primaryCount = data.images.filter((image) => image.isPrimary).length;
     if (data.images.length > 0 && primaryCount > 1) {
       ctx.addIssue({
@@ -98,11 +127,11 @@ export const productInputSchema = z
       });
     }
 
-    // ACTIVE products must have at least one active variant
+    // 4 — ACTIVE products must have at least one active variant
     if (data.status === 'ACTIVE' && !data.variants.some((variant) => variant.isActive)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'An ACTIVE product needs at least one active variant',
+        message: 'يجب أن يحتوي المنتج النشط على خيار واحد نشط على الأقل',
         path: ['status']
       });
     }

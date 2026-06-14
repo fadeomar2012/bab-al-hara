@@ -6,14 +6,15 @@ import { CartSummary } from './CartSummary';
 import { EmptyState } from './EmptyState';
 import { useCart } from './CartProvider';
 import { createCodOrderAction } from '@/features/orders/order.actions';
+import { saveRecentOrder } from '@/features/orders/recent-orders.client';
 import type { OrderStockError } from '@/features/orders/order.types';
 
 const governorates = ['غزة', 'شمال غزة', 'دير البلح', 'خانيونس', 'رفح', 'الضفة الغربية', 'القدس'];
 const SHIPPING_KEY = 'bab-al-hara-shipping';
 
-type ShippingFields = { name: string; phone: string; city: string; area: string; address: string; notes: string };
+type ShippingFields = { name: string; phone: string; whatsappPhone: string; city: string; area: string; address: string; notes: string };
 
-const EMPTY_FIELDS: ShippingFields = { name: '', phone: '', city: '', area: '', address: '', notes: '' };
+const EMPTY_FIELDS: ShippingFields = { name: '', phone: '', whatsappPhone: '', city: '', area: '', address: '', notes: '' };
 
 export function CheckoutForm() {
   const router = useRouter();
@@ -50,6 +51,7 @@ export function CheckoutForm() {
     const result = await createCodOrderAction({
       fullName: fields.name,
       phone: fields.phone,
+      whatsappPhone: fields.whatsappPhone || undefined,
       city: fields.city,
       area: fields.area,
       address: fields.address,
@@ -63,6 +65,16 @@ export function CheckoutForm() {
       } catch {
         /* ignore */
       }
+      saveRecentOrder({
+        orderNumber: result.orderNumber,
+        phone: fields.phone,
+        customerName: fields.name,
+        city: fields.city,
+        area: fields.area,
+        total: result.total,
+        deliveryFeeStatus: 'PENDING',
+        createdAt: new Date().toISOString()
+      });
       clearCart();
       router.push(`/order-success?order=${encodeURIComponent(result.orderNumber)}`);
       return;
@@ -100,7 +112,7 @@ export function CheckoutForm() {
         <section className="formCard">
           <span className="eyebrow">Cash on delivery</span>
           <h2>معلومات التوصيل</h2>
-          <p className="checkoutTrustText">الدفع عند الاستلام فقط — سنتواصل معك لتأكيد الطلب قبل التجهيز.</p>
+          <p className="checkoutTrustText">الدفع عند الاستلام فقط — سنتواصل معك لتأكيد الطلب وسعر التوصيل حسب المنطقة قبل التجهيز.</p>
           <div className="formGrid">
             <label>
               الاسم الكامل
@@ -111,6 +123,12 @@ export function CheckoutForm() {
               رقم الجوال
               <input name="phone" value={fields.phone} onChange={(e) => set('phone', e.target.value)} required inputMode="tel" placeholder="05xxxxxxxx" />
               {fieldErrors.phone && <small className="fieldError">{fieldErrors.phone}</small>}
+            </label>
+            <label>
+              رقم واتساب (اختياري)
+              <input name="whatsappPhone" value={fields.whatsappPhone} onChange={(e) => set('whatsappPhone', e.target.value)} inputMode="tel" placeholder="اتركيه فارغاً إذا نفس رقم الجوال" />
+              <small className="fieldHint">استخدميه إذا كان رقم واتساب مختلفاً عن رقم الاتصال.</small>
+              {fieldErrors.whatsappPhone && <small className="fieldError">{fieldErrors.whatsappPhone}</small>}
             </label>
             <label>
               المحافظة
@@ -143,7 +161,7 @@ export function CheckoutForm() {
             <input type="radio" name="payment" checked readOnly />
             <span>
               <strong>كاش عند الاستلام</strong>
-              <small>لا يوجد دفع إلكتروني حالياً. التأكيد يتم عبر التواصل معك.</small>
+              <small>لا يوجد دفع إلكتروني حالياً. سعر التوصيل يحدد عند تأكيد الطلب حسب المنطقة.</small>
             </span>
           </label>
         </section>
@@ -172,7 +190,7 @@ export function CheckoutForm() {
           ))}
         </div>
         <CartSummary subtotal={subtotal} deliveryFee={deliveryFee} total={total} checkout={false} />
-        <p className="checkoutTrustText" style={{ marginTop: 12 }}>الإجمالي النهائي يتم احتسابه من قبل المتجر عند تأكيد الطلب.</p>
+        <p className="checkoutTrustText" style={{ marginTop: 12 }}>المبلغ الظاهر هو قبل التوصيل. سيتم تحديد سعر التوصيل عند التواصل معك حسب المنطقة وظروف التسليم.</p>
       </aside>
     </div>
   );

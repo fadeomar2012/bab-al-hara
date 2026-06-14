@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { checkoutSchema, trackOrderSchema } from './order.validation';
 import { lockVariantsForUpdate } from './order-stock';
-import { calcOrderTotals } from './order-pricing';
+import { calcLineTotal, calcOrderTotals, roundMoney } from './order-pricing';
 import { buildOrderNumber, orderNumberDatePrefix } from './order-number';
 import { getOrderByNumberAndPhone } from './order.queries';
 import type { CheckoutInput, CreateOrderResult, OrderStockError, OrderView } from './order.types';
@@ -22,6 +22,8 @@ type OrderItemData = {
   variantId: string;
   productNameSnapshot: string;
   snapshot: Record<string, string>;
+  productSlug: string;
+  categorySlug: string | null;
   quantity: number;
   unitPrice: number;
   total: number;
@@ -47,6 +49,8 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
   const variantIds = [...qtyByVariant.keys()];
 
   const MAX_RETRIES = 4;
+  const ORDER_TRANSACTION_OPTIONS = { maxWait: 10_000, timeout: 20_000 };
+
   for (let attempt = 0; attempt < MAX_RETRIES; attempt += 1) {
     try {
       const result = await prisma.$transaction(async (tx) => {
@@ -58,7 +62,10 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
           where: { id: { in: variantIds } },
           include: {
             product: {
-              include: { images: { orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }], take: 1 } }
+              include: {
+                category: { select: { slug: true } },
+                images: { orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }], take: 1 }
+              }
             }
           }
         });
@@ -84,8 +91,8 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
         for (const [variantId, qty] of qtyByVariant) {
           const variant = variantMap.get(variantId)!;
           const unitPrice = variant.price.toNumber();
-          const lineTotal = unitPrice * qty;
-          subtotal += lineTotal;
+          const lineTotal = calcLineTotal(unitPrice, qty);
+          subtotal = roundMoney(subtotal + lineTotal);
 
           const snapshot: Record<string, string> = { sku: variant.sku, productSlug: variant.product.slug };
           if (variant.colorName) snapshot.colorName = variant.colorName;
@@ -99,6 +106,8 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
             variantId: variant.id,
             productNameSnapshot: variant.product.name,
             snapshot,
+            productSlug: variant.product.slug,
+            categorySlug: variant.product.category?.slug ?? null,
             quantity: qty,
             unitPrice,
             total: lineTotal
@@ -109,8 +118,21 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
         // 5. Upsert the customer by normalised phone.
         const customer = await tx.customer.upsert({
           where: { phone: data.phone },
-          update: { fullName: data.fullName, city: data.city, area: data.area, address: data.address },
-          create: { phone: data.phone, fullName: data.fullName, city: data.city, area: data.area, address: data.address }
+          update: {
+            fullName: data.fullName,
+            whatsappPhone: data.whatsappPhone ?? undefined,
+            city: data.city,
+            area: data.area,
+            address: data.address
+          },
+          create: {
+            phone: data.phone,
+            whatsappPhone: data.whatsappPhone ?? null,
+            fullName: data.fullName,
+            city: data.city,
+            area: data.area,
+            address: data.address
+          }
         });
 
         // 6. Generate the daily order number.
@@ -128,11 +150,13 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
             status: 'PENDING',
             paymentMethod: 'COD',
             subtotal: totals.subtotal,
-            deliveryFee: totals.deliveryFee,
+            deliveryFee: 0,
+            deliveryFeeStatus: 'PENDING',
             discount: totals.discount,
             total: totals.total,
             customerName: data.fullName,
             customerPhone: data.phone,
+            customerWhatsappPhone: data.whatsappPhone ?? null,
             city: data.city,
             area: data.area,
             address: data.address,
@@ -148,14 +172,29 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
                 total: item.total
               }))
             },
-            statusHistory: { create: { fromStatus: null, toStatus: 'PENDING', note: 'Order created from storefront' } }
+            statusHistory: { create: { fromStatus: null, toStatus: 'PENDING', note: 'Order created from storefront — delivery fee pending admin confirmation' } }
           },
           select: { id: true, orderNumber: true }
         });
 
-        // 8. Deduct stock and log it.
+        // 8. Deduct stock, log it, and update the storefront sold counters.
+        const soldQuantityByProduct = new Map<string, number>();
         for (const item of itemsData) {
-          await tx.productVariant.update({ where: { id: item.variantId }, data: { quantity: { decrement: item.quantity } } });
+          const stockUpdate = await tx.productVariant.updateMany({
+            where: { id: item.variantId, quantity: { gte: item.quantity } },
+            data: { quantity: { decrement: item.quantity } }
+          });
+          if (stockUpdate.count !== 1) {
+            throw new StockAbort([
+              {
+                code: 'OUT_OF_STOCK',
+                variantId: item.variantId,
+                productName: item.productNameSnapshot,
+                available: Math.max(0, variantMap.get(item.variantId)?.quantity ?? 0)
+              }
+            ]);
+          }
+
           await tx.inventoryLog.create({
             data: {
               productId: item.productId,
@@ -166,14 +205,30 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
               note: `Order ${order.orderNumber}`
             }
           });
+          soldQuantityByProduct.set(item.productId, (soldQuantityByProduct.get(item.productId) ?? 0) + item.quantity);
         }
 
-        return { orderId: order.id, orderNumber: order.orderNumber, total: totals.total };
-      });
+        for (const [productId, quantity] of soldQuantityByProduct) {
+          await tx.product.update({ where: { id: productId }, data: { soldCount: { increment: quantity } } });
+        }
+
+        return {
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          total: totals.total,
+          productSlugs: [...new Set(itemsData.map((item) => item.productSlug))],
+          categorySlugs: [...new Set(itemsData.map((item) => item.categorySlug).filter((slug): slug is string => Boolean(slug)))]
+        };
+      }, ORDER_TRANSACTION_OPTIONS);
 
       revalidatePath('/admin/orders');
       revalidatePath('/admin');
       revalidatePath('/admin/inventory');
+      revalidatePath('/');
+      revalidatePath('/category/new-in');
+      revalidatePath('/category/sale');
+      for (const slug of result.categorySlugs) revalidatePath(`/category/${slug}`);
+      for (const slug of result.productSlugs) revalidatePath(`/product/${slug}`);
       return { ok: true, orderNumber: result.orderNumber, orderId: result.orderId, total: result.total };
     } catch (error) {
       if (error instanceof StockAbort) {

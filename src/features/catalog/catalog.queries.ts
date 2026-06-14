@@ -84,6 +84,31 @@ function productOrderBy(sort: CatalogProductFilters['sort']): Prisma.ProductOrde
   }
 }
 
+async function withEffectiveSoldCounts<T extends { id: string; soldCount: number }>(products: T[]): Promise<T[]> {
+  const productIds = products.map((product) => product.id);
+  if (productIds.length === 0) return products;
+
+  const soldRows = await prisma.orderItem.groupBy({
+    by: ['productId'],
+    where: {
+      productId: { in: productIds },
+      order: { status: { not: 'CANCELED' } }
+    },
+    _sum: { quantity: true }
+  });
+
+  const soldCountByProduct = new Map(soldRows.map((row) => [row.productId, row._sum.quantity ?? 0]));
+
+  return products.map((product) => ({
+    ...product,
+    soldCount: Math.max(product.soldCount, soldCountByProduct.get(product.id) ?? 0)
+  }));
+}
+
+function sortByEffectiveBestSellers<T extends { soldCount: number; createdAt: Date }>(products: T[]): T[] {
+  return [...products].sort((a, b) => b.soldCount - a.soldCount || b.createdAt.getTime() - a.createdAt.getTime());
+}
+
 async function getProductList(filters: CatalogProductFilters = {}) {
   const products = await prisma.product.findMany({
     where: activeProductWhere(filters),
@@ -91,7 +116,9 @@ async function getProductList(filters: CatalogProductFilters = {}) {
     orderBy: productOrderBy(filters.sort),
     take: filters.limit ?? 24
   });
-  return products.map(mapProductCard);
+  const productsWithSoldCounts = await withEffectiveSoldCounts(products);
+  const sortedProducts = filters.sort === 'best-sellers' ? sortByEffectiveBestSellers(productsWithSoldCounts) : productsWithSoldCounts;
+  return sortedProducts.map(mapProductCard);
 }
 
 export async function getActiveCategories() {
@@ -140,7 +167,9 @@ export async function getProductBySlug(slug: string) {
     include: productListInclude
   });
 
-  return product ? mapProductDetail(product) : null;
+  if (!product) return null;
+  const [productWithSoldCount] = await withEffectiveSoldCounts([product]);
+  return mapProductDetail(productWithSoldCount);
 }
 
 export async function getRelatedProducts(productId: string, categoryId: string) {
@@ -155,7 +184,8 @@ export async function getRelatedProducts(productId: string, categoryId: string) 
     orderBy: [{ isBestSeller: 'desc' }, { soldCount: 'desc' }, { createdAt: 'desc' }],
     take: 5
   });
-  return products.map(mapProductCard);
+  const productsWithSoldCounts = await withEffectiveSoldCounts(products);
+  return productsWithSoldCounts.map(mapProductCard);
 }
 
 export async function getFeaturedProducts(limit = 10) {
@@ -165,7 +195,8 @@ export async function getFeaturedProducts(limit = 10) {
     orderBy: [{ soldCount: 'desc' }, { createdAt: 'desc' }],
     take: limit
   });
-  return products.map(mapProductCard);
+  const productsWithSoldCounts = await withEffectiveSoldCounts(products);
+  return productsWithSoldCounts.map(mapProductCard);
 }
 
 export async function getNewArrivals(limit = 8) {
@@ -175,7 +206,8 @@ export async function getNewArrivals(limit = 8) {
     orderBy: [{ createdAt: 'desc' }],
     take: limit
   });
-  return products.map(mapProductCard);
+  const productsWithSoldCounts = await withEffectiveSoldCounts(products);
+  return productsWithSoldCounts.map(mapProductCard);
 }
 
 export async function getBestSellers(limit = 8) {
@@ -185,7 +217,8 @@ export async function getBestSellers(limit = 8) {
     orderBy: [{ soldCount: 'desc' }, { createdAt: 'desc' }],
     take: limit
   });
-  return products.map(mapProductCard);
+  const productsWithSoldCounts = await withEffectiveSoldCounts(products);
+  return sortByEffectiveBestSellers(productsWithSoldCounts).map(mapProductCard);
 }
 
 export async function searchProducts(query: string, filters: CatalogProductFilters = {}) {

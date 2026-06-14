@@ -29,7 +29,7 @@ export function OrderFilters() {
         update({ q });
       }}
     >
-      <input className="adminInput" type="search" placeholder="ابحث برقم الطلب أو الاسم أو الهاتف…" value={q} onChange={(event) => setQ(event.target.value)} aria-label="بحث في الطلبات" />
+      <input className="adminInput" type="search" placeholder="ابحث برقم الطلب أو الاسم أو الهاتف أو الواتساب…" value={q} onChange={(event) => setQ(event.target.value)} aria-label="بحث في الطلبات" />
       <select className="adminInput" value={searchParams.get('status') ?? 'ALL'} onChange={(event) => update({ status: event.target.value })} aria-label="تصفية حسب الحالة">
         <option value="ALL">كل الحالات</option>
         <option value="PENDING">بانتظار التأكيد</option>
@@ -43,6 +43,12 @@ export function OrderFilters() {
         <option value="all">كل الأوقات</option>
         <option value="today">اليوم</option>
         <option value="7d">آخر 7 أيام</option>
+      </select>
+      <select className="adminInput" value={searchParams.get('delivery') ?? 'ALL'} onChange={(event) => update({ delivery: event.target.value })} aria-label="تصفية حسب التوصيل">
+        <option value="ALL">كل حالات التوصيل</option>
+        <option value="PENDING">بانتظار تحديد التوصيل</option>
+        <option value="SET">تم تحديد سعر التوصيل</option>
+        <option value="FREE">توصيل مجاني</option>
       </select>
     </form>
   );

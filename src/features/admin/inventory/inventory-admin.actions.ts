@@ -117,11 +117,49 @@ export async function updateVariantThresholdAction(variantId: string, threshold:
 
 export async function setVariantActiveAction(variantId: string, isActive: boolean): Promise<InventoryActionResult> {
   await requireAdmin();
-  const variant = await prisma.productVariant.update({
-    where: { id: variantId },
-    data: { isActive },
-    select: { quantity: true, product: { select: { slug: true, category: { select: { slug: true } } } } }
-  });
-  revalidateInventoryViews(variant.product.slug, variant.product.category?.slug ?? null);
-  return { ok: true, quantity: variant.quantity };
+
+  try {
+    const variant = await prisma.$transaction(async (tx) => {
+      const current = await tx.productVariant.findUnique({
+        where: { id: variantId },
+        select: {
+          id: true,
+          productId: true,
+          isActive: true,
+          quantity: true,
+          product: { select: { status: true, slug: true, category: { select: { slug: true } } } }
+        }
+      });
+
+      if (!current) throw new Error('VARIANT_NOT_FOUND');
+
+      if (current.isActive && !isActive && current.product.status === 'ACTIVE') {
+        await tx.$queryRaw(Prisma.sql`SELECT id FROM "ProductVariant" WHERE "productId" = ${current.productId} FOR UPDATE`);
+        const activeVariantCount = await tx.productVariant.count({
+          where: { productId: current.productId, isActive: true }
+        });
+
+        if (activeVariantCount <= 1) {
+          throw new Error('LAST_ACTIVE_VARIANT_FOR_ACTIVE_PRODUCT');
+        }
+      }
+
+      return tx.productVariant.update({
+        where: { id: variantId },
+        data: { isActive },
+        select: { quantity: true, product: { select: { slug: true, category: { select: { slug: true } } } } }
+      });
+    }, { maxWait: 10_000, timeout: 20_000 });
+
+    revalidateInventoryViews(variant.product.slug, variant.product.category?.slug ?? null);
+    return { ok: true, quantity: variant.quantity };
+  } catch (error) {
+    if (error instanceof Error && error.message === 'VARIANT_NOT_FOUND') {
+      return { ok: false, message: 'Variant not found.' };
+    }
+    if (error instanceof Error && error.message === 'LAST_ACTIVE_VARIANT_FOR_ACTIVE_PRODUCT') {
+      return { ok: false, message: 'لا يمكن تعطيل آخر خيار نشط لمنتج منشور. أضف خياراً آخر أو حوّل المنتج إلى مسودة أولاً.' };
+    }
+    throw error;
+  }
 }

@@ -8,6 +8,7 @@ export type RecentOrder = {
   city?: string;
   area?: string;
   total?: number;
+  deliveryFeeStatus?: 'PENDING' | 'SET' | 'FREE';
   createdAt: string;
 };
 
@@ -28,6 +29,7 @@ function normalizeRecentOrder(value: unknown): RecentOrder | null {
     city: typeof candidate.city === 'string' ? candidate.city.trim() : undefined,
     area: typeof candidate.area === 'string' ? candidate.area.trim() : undefined,
     total: typeof candidate.total === 'number' && Number.isFinite(candidate.total) ? candidate.total : undefined,
+    deliveryFeeStatus: candidate.deliveryFeeStatus === 'PENDING' || candidate.deliveryFeeStatus === 'SET' || candidate.deliveryFeeStatus === 'FREE' ? candidate.deliveryFeeStatus : undefined,
     createdAt: typeof candidate.createdAt === 'string' && candidate.createdAt.trim() ? candidate.createdAt : new Date().toISOString()
   };
 }

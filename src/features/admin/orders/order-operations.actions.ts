@@ -30,8 +30,11 @@ export async function updateOrderNotesAction(orderId: string, input: OrderNotesI
 /** Record a print of the invoice or packing slip (increment count + timestamp). */
 export async function markOrderPrintedAction(orderId: string, type: PrintType): Promise<OperationsResult> {
   await requireAdmin();
-  const order = await prisma.order.findUnique({ where: { id: orderId }, select: { id: true } });
+  const order = await prisma.order.findUnique({ where: { id: orderId }, select: { id: true, deliveryFeeStatus: true } });
   if (!order) return { ok: false, message: 'Order not found.' };
+  if (type === 'invoice' && order.deliveryFeeStatus === 'PENDING') {
+    return { ok: false, message: 'حدد سعر التوصيل أو اعتمده مجانياً قبل طباعة الفاتورة النهائية.' };
+  }
 
   await prisma.order.update({
     where: { id: orderId },
@@ -46,8 +49,9 @@ export async function markOrderPrintedAction(orderId: string, type: PrintType): 
 
 export async function setOrderPackedAction(orderId: string, isPacked: boolean): Promise<OperationsResult> {
   await requireAdmin();
-  const order = await prisma.order.findUnique({ where: { id: orderId }, select: { id: true } });
+  const order = await prisma.order.findUnique({ where: { id: orderId }, select: { id: true, status: true } });
   if (!order) return { ok: false, message: 'Order not found.' };
+  if (order.status === 'CANCELED') return { ok: false, message: 'لا يمكن تعديل حالة التغليف لطلب ملغي.' };
 
   await prisma.order.update({
     where: { id: orderId },

@@ -21,6 +21,13 @@ export const checkoutSchema = z.object({
     .min(6, 'رقم الجوال مطلوب')
     .transform(normalizePhone)
     .refine((value) => value.replace(/\D/g, '').length >= 7, 'رقم الجوال غير صالح'),
+  whatsappPhone: z
+    .string()
+    .trim()
+    .max(40, 'رقم واتساب طويل جداً')
+    .optional()
+    .transform((value) => (value ? normalizePhone(value) : undefined))
+    .refine((value) => !value || value.replace(/\D/g, '').length >= 7, 'رقم واتساب غير صالح'),
   city: z.string().trim().min(1, 'المحافظة مطلوبة').max(80),
   area: z.string().trim().min(1, 'المنطقة / الحي مطلوب').max(120),
   address: z.string().trim().min(5, 'العنوان التفصيلي مطلوب').max(500),

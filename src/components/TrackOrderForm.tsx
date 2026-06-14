@@ -16,6 +16,7 @@ const RECENT_STATUS_AUTO_LIMIT = 5;
 type RecentStatusLookup = {
   status?: OrderView['status'];
   total?: number;
+  deliveryFeeStatus?: OrderView['deliveryFeeStatus'];
   fetchedAt?: string;
   error?: string;
 };
@@ -63,6 +64,7 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
   const [refreshingRecent, setRefreshingRecent] = useState(false);
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
   const [copiedOrderNumber, setCopiedOrderNumber] = useState<string | null>(null);
+  const [confirmClearRecent, setConfirmClearRecent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [order, setOrder] = useState<OrderView | null>(null);
   const autoRefreshedRef = useRef(false);
@@ -85,6 +87,7 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
             ? {
                 status: result.order.status,
                 total: result.order.total,
+                deliveryFeeStatus: result.order.deliveryFeeStatus,
                 fetchedAt: new Date().toISOString()
               }
             : {
@@ -128,6 +131,7 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
           [result.order.orderNumber]: {
             status: result.order.status,
             total: result.order.total,
+            deliveryFeeStatus: result.order.deliveryFeeStatus,
             fetchedAt: new Date().toISOString()
           }
         }));
@@ -156,6 +160,7 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
   }
 
   function hideSavedOrder(savedOrder: RecentOrder) {
+    setConfirmClearRecent(false);
     setRecentOrders(removeRecentOrder(savedOrder.orderNumber));
     setRecentLookup((current) => {
       const next = { ...current };
@@ -168,9 +173,16 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
   }
 
   function hideAllSavedOrders() {
+    if (!confirmClearRecent) {
+      setConfirmClearRecent(true);
+      return;
+    }
+
     clearRecentOrders();
     setRecentOrders([]);
     setRecentLookup({});
+    setOrder(null);
+    setConfirmClearRecent(false);
   }
 
   async function copyOrderNumber(value: string) {
@@ -200,6 +212,11 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
         <p className="checkoutTrustText">
           نعرض هنا الطلبات التي تم إنشاؤها من هذا المتصفح فقط. يمكنك إخفاء أي طلب من القائمة، وهذا لا يلغي الطلب من المتجر.
         </p>
+        {confirmClearRecent && (
+          <div className="recentOrdersConfirmNote" role="status">
+            سيتم إخفاء كل الطلبات من هذا الجهاز فقط. الطلبات الحقيقية ستبقى محفوظة في المتجر.
+          </div>
+        )}
 
         {recentOrders.length > 0 && (
           <div className="recentOrdersToolbar" aria-label="إدارة الطلبات المحفوظة">
@@ -211,9 +228,16 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
             >
               {refreshingRecent ? 'جاري تحديث الحالات...' : 'تحديث الحالات'}
             </button>
-            <button type="button" className="recentOrderDangerButton fullWidth" onClick={hideAllSavedOrders}>
-              إخفاء الكل
-            </button>
+            <div className="recentOrdersClearGroup">
+              <button type="button" className="recentOrderDangerButton fullWidth" onClick={hideAllSavedOrders}>
+                {confirmClearRecent ? 'تأكيد إخفاء الكل' : 'إخفاء الكل'}
+              </button>
+              {confirmClearRecent && (
+                <button type="button" className="ghostButton fullWidth" onClick={() => setConfirmClearRecent(false)}>
+                  تراجع
+                </button>
+              )}
+            </div>
           </div>
         )}
 
@@ -228,6 +252,7 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
               const isTracking = loadingKey === savedOrder.orderNumber;
               const lookup = recentLookup[savedOrder.orderNumber];
               const displayTotal = lookup?.total ?? savedOrder.total;
+              const displayDeliveryFeeStatus = lookup?.deliveryFeeStatus ?? savedOrder.deliveryFeeStatus;
               return (
                 <article className="recentOrderCard" key={savedOrder.orderNumber}>
                   <button
@@ -252,7 +277,7 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
                   <div className="recentOrderMeta">
                     {savedOrder.customerName && <span>{savedOrder.customerName}</span>}
                     {location && <span>{location}</span>}
-                    {typeof displayTotal === 'number' && <span>الإجمالي: ₪{displayTotal}</span>}
+                    {typeof displayTotal === 'number' && <span>{displayDeliveryFeeStatus === 'PENDING' ? 'قبل التوصيل' : 'الإجمالي'}: ₪{displayTotal}</span>}
                     {lookup?.fetchedAt && <span>آخر تحديث: {formatDateTime(lookup.fetchedAt)}</span>}
                   </div>
                   <div className="recentOrderActions">
@@ -336,7 +361,8 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
               <b>₪{item.total}</b>
             </div>
           ))}
-          <div className="summaryTotal"><span>الإجمالي (كاش عند الاستلام)</span><strong>₪{order.total}</strong></div>
+          <div className="summaryLine"><span>التوصيل</span><strong>{order.deliveryFeeStatus === 'PENDING' ? 'يحدد عند التأكيد' : order.deliveryFeeStatus === 'FREE' ? 'مجاني' : `₪${order.deliveryFee}`}</strong></div>
+          <div className="summaryTotal"><span>{order.deliveryFeeStatus === 'PENDING' ? 'الإجمالي قبل التوصيل' : 'الإجمالي (كاش عند الاستلام)'}</span><strong>₪{order.total}</strong></div>
         </div>
       )}
     </div>

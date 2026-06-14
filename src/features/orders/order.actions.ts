@@ -118,8 +118,21 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
         // 5. Upsert the customer by normalised phone.
         const customer = await tx.customer.upsert({
           where: { phone: data.phone },
-          update: { fullName: data.fullName, city: data.city, area: data.area, address: data.address },
-          create: { phone: data.phone, fullName: data.fullName, city: data.city, area: data.area, address: data.address }
+          update: {
+            fullName: data.fullName,
+            whatsappPhone: data.whatsappPhone ?? undefined,
+            city: data.city,
+            area: data.area,
+            address: data.address
+          },
+          create: {
+            phone: data.phone,
+            whatsappPhone: data.whatsappPhone ?? null,
+            fullName: data.fullName,
+            city: data.city,
+            area: data.area,
+            address: data.address
+          }
         });
 
         // 6. Generate the daily order number.
@@ -137,11 +150,13 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
             status: 'PENDING',
             paymentMethod: 'COD',
             subtotal: totals.subtotal,
-            deliveryFee: totals.deliveryFee,
+            deliveryFee: 0,
+            deliveryFeeStatus: 'PENDING',
             discount: totals.discount,
             total: totals.total,
             customerName: data.fullName,
             customerPhone: data.phone,
+            customerWhatsappPhone: data.whatsappPhone ?? null,
             city: data.city,
             area: data.area,
             address: data.address,
@@ -157,7 +172,7 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
                 total: item.total
               }))
             },
-            statusHistory: { create: { fromStatus: null, toStatus: 'PENDING', note: 'Order created from storefront' } }
+            statusHistory: { create: { fromStatus: null, toStatus: 'PENDING', note: 'Order created from storefront — delivery fee pending admin confirmation' } }
           },
           select: { id: true, orderNumber: true }
         });

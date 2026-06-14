@@ -2352,3 +2352,163 @@ select.adminInput {
 @media (min-width: 1040px) {
   .vbPresetSwatches { grid-template-columns: repeat(7, minmax(0,1fr)); }
 }
+
+.adminDeliveryFeePanel { display: grid; gap: 10px; }
+.adminDeliveryFeeSummary {
+  display: grid; gap: 6px; padding: 12px 13px;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: rgba(255,255,255,.66); color: var(--muted); font-size: 13px;
+}
+.adminDeliveryFeeSummary b { color: var(--deep-brown); }
+.deliveryPendingText { color: var(--camel-dark); font-weight: 800; }
+
+/* Sprint 7 — Privacy + mobile UX polish */
+.quantitySelector button:disabled {
+  color: rgba(123,103,90,.35);
+  cursor: not-allowed;
+}
+.quantitySelector input {
+  width: 46px;
+  min-width: 46px;
+  height: 40px;
+  border: 0;
+  border-inline: 1px solid rgba(61,42,33,.08);
+  background: rgba(255,255,255,.38);
+  color: var(--deep-brown);
+  text-align: center;
+  font-weight: 900;
+  font-size: 15px;
+  outline: none;
+  appearance: textfield;
+}
+.quantitySelector input::-webkit-outer-spin-button,
+.quantitySelector input::-webkit-inner-spin-button { appearance: none; margin: 0; }
+.quantitySelector input:focus { box-shadow: inset 0 0 0 2px rgba(201,166,90,.32); }
+.orderSuccessPage {
+  display: grid;
+  gap: 16px;
+}
+.orderSuccessSummaryGrid,
+.successStepsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+.orderSuccessSummaryGrid > div,
+.successStepsGrid > div {
+  border: 1px solid rgba(61,42,33,.1);
+  background: rgba(255,255,255,.62);
+  border-radius: 18px;
+  padding: 13px;
+  display: grid;
+  gap: 5px;
+}
+.orderSuccessSummaryGrid span,
+.successStepsGrid span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+.orderSuccessSummaryGrid strong,
+.successStepsGrid strong {
+  color: var(--deep-brown);
+  font-weight: 900;
+}
+.successStepsGrid p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 13px;
+}
+.orderSuccessNextSteps { max-width: 760px; margin-inline: auto; width: 100%; }
+.recentOrdersClearGroup {
+  display: grid;
+  gap: 8px;
+}
+.recentOrdersConfirmNote {
+  margin-top: 10px;
+  border: 1px solid rgba(157,63,50,.18);
+  background: rgba(157,63,50,.07);
+  color: var(--red-brown);
+  border-radius: 16px;
+  padding: 10px 12px;
+  font-weight: 800;
+  font-size: 13px;
+  line-height: 1.7;
+}
+@media (min-width: 560px) {
+  .orderSuccessSummaryGrid { grid-template-columns: repeat(3, 1fr); }
+  .successStepsGrid { grid-template-columns: repeat(3, 1fr); }
+  .recentOrdersClearGroup { grid-template-columns: auto auto; }
+}
+
+/* Sprint 8 — Admin order workflow clarity */
+.adminPill {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 800;
+  border: 1px solid var(--line); background: rgba(255,255,255,.72); color: var(--brown);
+  white-space: nowrap;
+}
+.adminPillWarning { background: rgba(201,166,90,.16); border-color: rgba(201,166,90,.36); color: var(--camel-dark); }
+.adminPillSuccess { background: rgba(54,110,76,.11); border-color: rgba(54,110,76,.3); color: #2f6b46; }
+.adminWorkflow {
+  display: grid;
+  gap: 10px;
+}
+.adminWorkflowStep {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255,255,255,.58);
+}
+.adminWorkflowDot {
+  width: 14px; height: 14px; border-radius: 999px; margin-top: 3px;
+  border: 2px solid var(--line-strong); background: #fff;
+}
+.adminWorkflowStep strong { display: block; font-size: 14px; color: var(--deep-brown); }
+.adminWorkflowStep p { margin: 3px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.adminWorkflowStep.isDone { border-color: rgba(54,110,76,.24); background: rgba(54,110,76,.07); }
+.adminWorkflowStep.isDone .adminWorkflowDot { background: #2f6b46; border-color: #2f6b46; }
+.adminWorkflowStep.isCurrent { border-color: rgba(201,166,90,.36); background: rgba(201,166,90,.1); }
+.adminWorkflowStep.isCurrent .adminWorkflowDot { background: var(--camel); border-color: var(--camel); }
+.adminWorkflowStep.isBlocked { border-color: rgba(157,63,50,.28); background: rgba(157,63,50,.06); }
+.adminWorkflowStep.isBlocked .adminWorkflowDot { background: var(--red-brown); border-color: var(--red-brown); }
+.adminWorkflowStep.isTodo { opacity: .82; }
+
+@media (min-width: 920px) {
+  .adminWorkflow { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .adminWorkflowStep { align-content: start; }
+}
+
+@media (max-width: 640px) {
+  .adminBtnRow .adminBtn { flex: 1 1 100%; }
+  .printToolbar .adminAlert { width: 100%; }
+}
+
+/* Final admin stop — dashboard priority + optional WhatsApp field */
+.fieldHint { color: var(--muted); font-size: 12px; line-height: 1.6; display: block; margin-top: -2px; }
+.adminStat.success .adminStatValue { color: #2f6b46; }
+.adminStat.isClickable { text-decoration: none; color: inherit; display: block; }
+.adminStat.isClickable:hover { transform: translateY(-2px); border-color: var(--line-strong); background: rgba(255,255,255,.82); }
+.adminStatHint { margin-top: 6px; color: var(--muted); font-size: 11px; font-weight: 700; line-height: 1.45; }
+.adminStatGrid.compact { grid-template-columns: 1fr; }
+.adminDashboardHero { display: grid; gap: 16px; background: linear-gradient(135deg, rgba(255,255,255,.74), rgba(201,166,90,.12)); }
+.adminDashboardHero h2 { margin: 5px 0 4px; font-size: clamp(22px, 5vw, 32px); letter-spacing: -.04em; }
+.adminDashboardHero p { margin: 0; color: var(--muted); line-height: 1.7; }
+.adminDashboardSplit { display: grid; gap: 16px; margin-top: 16px; }
+.adminDashboardOrderCard,
+.adminDashboardStockCard { text-decoration: none; color: inherit; }
+.adminDashboardOrderCard:hover,
+.adminDashboardStockCard:hover { border-color: var(--line-strong); background: rgba(255,255,255,.78); transform: translateY(-1px); }
+.adminPillDanger { background: rgba(157,63,50,.1); border-color: rgba(157,63,50,.32); color: var(--red-brown); }
+@media (min-width: 700px) {
+  .adminStatGrid.compact { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .adminDashboardHero { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); align-items: center; }
+}
+@media (min-width: 1100px) {
+  .adminDashboardSplit { grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr); align-items: start; }
+}

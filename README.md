@@ -41,7 +41,7 @@ This is a working **Sprint 5** codebase: real database-backed orders, a protecte
 - Database-backed orders with server-side price calculation
 - Customer upsert on checkout
 - Transactional stock deduction (locked stock transaction)
-- Inventory logs for every stock change
+- Inventory logs for every stock change, including ProductForm quantity edits and initial product stock
 - Stock restore on order cancellation
 - Order status history
 
@@ -82,6 +82,8 @@ npm install
 npm run db:generate   # prisma generate
 npm run db:push       # sync schema to the database
 npm run db:seed       # seed categories, products, banners
+npm run db:backfill-delivery-fee-status  # one-time after adding deliveryFeeStatus
+npm run db:backfill-inventory-ledger     # one-time after enabling inventory ledger audit
 npm run typecheck
 npm run lint
 npm run build

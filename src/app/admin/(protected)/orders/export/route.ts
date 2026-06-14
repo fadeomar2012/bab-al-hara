@@ -1,7 +1,7 @@
 import { type NextRequest } from 'next/server';
 import type { OrderStatus } from '@prisma/client';
 import { getAdminSession } from '@/features/admin/auth/admin-auth';
-import { getOrdersForExport, type AdminOrderDateFilter } from '@/features/admin/orders/order-admin.queries';
+import { getOrdersForExport, type AdminOrderDateFilter, type AdminDeliveryFeeFilter } from '@/features/admin/orders/order-admin.queries';
 import { buildOrdersCsv } from '@/features/admin/orders/order-csv';
 
 export const dynamic = 'force-dynamic';
@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
   const rows = await getOrdersForExport({
     q: searchParams.get('q') ?? undefined,
     status: (searchParams.get('status') as OrderStatus | 'ALL') ?? 'ALL',
-    date: (searchParams.get('date') as AdminOrderDateFilter) ?? 'all'
+    date: (searchParams.get('date') as AdminOrderDateFilter) ?? 'all',
+    delivery: (searchParams.get('delivery') as AdminDeliveryFeeFilter | null) ?? 'ALL'
   });
 
   const csv = buildOrdersCsv(rows);

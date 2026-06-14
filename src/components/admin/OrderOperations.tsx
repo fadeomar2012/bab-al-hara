@@ -3,16 +3,21 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import type { DeliveryFeeStatus, OrderStatus } from '@prisma/client';
 import { setOrderPackedAction } from '@/features/admin/orders/order-operations.actions';
 
 export function OrderOperations({
   orderId,
+  status,
+  deliveryFeeStatus,
   isPacked,
   invoicePrintCount,
   packingSlipPrintCount,
   summaryText
 }: {
   orderId: string;
+  status: OrderStatus;
+  deliveryFeeStatus: DeliveryFeeStatus;
   isPacked: boolean;
   invoicePrintCount: number;
   packingSlipPrintCount: number;
@@ -21,6 +26,9 @@ export function OrderOperations({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [copied, setCopied] = useState(false);
+
+  const deliveryPending = deliveryFeeStatus === 'PENDING' && status !== 'CANCELED';
+  const canPrintInvoice = !deliveryPending;
 
   function togglePacked() {
     startTransition(async () => {
@@ -41,11 +49,20 @@ export function OrderOperations({
 
   return (
     <div>
+      {deliveryPending && (
+        <div className="adminAlert isInfo" style={{ marginBottom: 10 }}>
+          الفاتورة النهائية مقفولة حتى يتم تحديد سعر التوصيل أو اعتماده مجانياً. يمكنك طباعة قائمة التغليف بدون أسعار.
+        </div>
+      )}
       <div className="adminBtnRow">
-        <Link href={`/admin/orders/${orderId}/invoice`} className="adminBtn adminBtnPrimary">🧾 طباعة الفاتورة</Link>
+        {canPrintInvoice ? (
+          <Link href={`/admin/orders/${orderId}/invoice`} className="adminBtn adminBtnPrimary">🧾 طباعة الفاتورة</Link>
+        ) : (
+          <button type="button" className="adminBtn adminBtnPrimary" disabled title="حدد التوصيل أولاً">🧾 طباعة الفاتورة</button>
+        )}
         <Link href={`/admin/orders/${orderId}/packing-slip`} className="adminBtn">📦 طباعة قائمة التغليف</Link>
         <button type="button" className="adminBtn adminBtnGhost" onClick={copySummary}>{copied ? 'تم النسخ!' : 'نسخ الملخص'}</button>
-        <button type="button" className={`adminBtn ${isPacked ? 'adminBtnGhost' : 'adminBtnPrimary'}`} onClick={togglePacked} disabled={pending}>
+        <button type="button" className={`adminBtn ${isPacked ? 'adminBtnGhost' : 'adminBtnPrimary'}`} onClick={togglePacked} disabled={pending || status === 'CANCELED'}>
           {isPacked ? 'تحديد كغير مُغلَّف' : 'تحديد كمُغلَّف'}
         </button>
       </div>

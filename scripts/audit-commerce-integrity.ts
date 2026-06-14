@@ -70,9 +70,9 @@ async function auditOrderMoney(): Promise<void> {
       }
     }
 
-    const expectedTotals = calcOrderTotals(expectedSubtotal, decimalToNumber(order.discount));
-    const actualSubtotal = decimalToNumber(order.subtotal);
     const actualDeliveryFee = decimalToNumber(order.deliveryFee);
+    const expectedTotals = calcOrderTotals(expectedSubtotal, decimalToNumber(order.discount), actualDeliveryFee);
+    const actualSubtotal = decimalToNumber(order.subtotal);
     const actualTotal = decimalToNumber(order.total);
 
     if (!moneyMatches(actualSubtotal, expectedTotals.subtotal)) {
@@ -89,6 +89,24 @@ async function auditOrderMoney(): Promise<void> {
         area: 'order-money',
         severity: 'error',
         message: `Order delivery fee mismatch. Expected ${expectedTotals.deliveryFee}, got ${actualDeliveryFee}.`,
+        reference: order.orderNumber
+      });
+    }
+
+    if ((order.deliveryFeeStatus === 'PENDING' || order.deliveryFeeStatus === 'FREE') && !moneyMatches(actualDeliveryFee, 0)) {
+      addIssue({
+        area: 'delivery-fee',
+        severity: 'error',
+        message: `Order with deliveryFeeStatus=${order.deliveryFeeStatus} must have deliveryFee=0, got ${actualDeliveryFee}.`,
+        reference: order.orderNumber
+      });
+    }
+
+    if (order.deliveryFeeStatus === 'SET' && moneyMatches(actualDeliveryFee, 0)) {
+      addIssue({
+        area: 'delivery-fee',
+        severity: 'warning',
+        message: 'Order delivery fee status is SET but fee is 0. Prefer FREE for intentional free delivery.',
         reference: order.orderNumber
       });
     }
@@ -170,6 +188,35 @@ async function auditInventoryLogs(): Promise<void> {
           reference: `${order.orderNumber} / variant ${variantId}`
         });
       }
+    }
+  }
+}
+
+async function auditInventoryLedgerBalance(): Promise<void> {
+  const variants = await prisma.productVariant.findMany({
+    select: {
+      id: true,
+      sku: true,
+      quantity: true,
+      product: { select: { name: true } }
+    }
+  });
+
+  const logSums = await prisma.inventoryLog.groupBy({
+    by: ['variantId'],
+    _sum: { quantityChange: true }
+  });
+  const ledgerQuantityByVariant = new Map(logSums.map((row) => [row.variantId, row._sum.quantityChange ?? 0]));
+
+  for (const variant of variants) {
+    const ledgerQuantity = ledgerQuantityByVariant.get(variant.id) ?? 0;
+    if (ledgerQuantity !== variant.quantity) {
+      addIssue({
+        area: 'inventory-ledger',
+        severity: 'error',
+        message: `Variant current quantity does not match inventory log ledger. Current quantity=${variant.quantity}, ledger sum=${ledgerQuantity}. Run npm run db:backfill-inventory-ledger once if this is pre-existing legacy data.`,
+        reference: `${variant.product.name} / ${variant.sku} / ${variant.id}`
+      });
     }
   }
 }
@@ -266,6 +313,7 @@ async function main(): Promise<void> {
   console.log('Running commerce integrity audit...');
   await auditOrderMoney();
   await auditInventoryLogs();
+  await auditInventoryLedgerBalance();
   await auditProductCounters();
   await auditProductAndVariantSanity();
 
@@ -273,7 +321,7 @@ async function main(): Promise<void> {
   const warnings = issues.filter((issue) => issue.severity === 'warning');
 
   if (issues.length === 0) {
-    console.log('✅ Commerce integrity audit passed. No calculation, stock, inventory-log, or sold-count issues found.');
+    console.log('✅ Commerce integrity audit passed. No calculation, stock, inventory-ledger, inventory-log, or sold-count issues found.');
     return;
   }
 
@@ -284,7 +332,7 @@ async function main(): Promise<void> {
 
   console.log(`\nAudit finished with ${errors.length} error(s) and ${warnings.length} warning(s).`);
   if (warnings.length) {
-    console.log('Warnings do not always block checkout, but should be reviewed. sold-count warnings are usually fixed with: npm run db:backfill-sold-count');
+    console.log('Warnings do not always block checkout, but should be reviewed. sold-count warnings are usually fixed with: npm run db:backfill-sold-count. Inventory-ledger errors on legacy data are usually fixed once with: npm run db:backfill-inventory-ledger');
   }
 
   if (errors.length) process.exitCode = 1;

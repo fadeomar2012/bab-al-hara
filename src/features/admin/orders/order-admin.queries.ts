@@ -1,16 +1,18 @@
 import 'server-only';
-import type { Prisma, OrderStatus } from '@prisma/client';
+import type { DeliveryFeeStatus, Prisma, OrderStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { normalizePhone } from '@/features/orders/order.validation';
 import { decimalToNumber, mapOrderItem } from '@/features/orders/order.mappers';
 import type { OrderItemView } from '@/features/orders/order.types';
 
 export type AdminOrderDateFilter = 'all' | 'today' | '7d';
+export type AdminDeliveryFeeFilter = 'ALL' | DeliveryFeeStatus;
 
 export type AdminOrderListParams = {
   q?: string;
   status?: OrderStatus | 'ALL';
   date?: AdminOrderDateFilter;
+  delivery?: AdminDeliveryFeeFilter;
 };
 
 export type AdminOrderListItem = {
@@ -18,10 +20,14 @@ export type AdminOrderListItem = {
   orderNumber: string;
   customerName: string;
   customerPhone: string;
+  customerWhatsappPhone?: string;
   city: string;
   area: string;
   status: OrderStatus;
   itemCount: number;
+  subtotal: number;
+  deliveryFee: number;
+  deliveryFeeStatus: DeliveryFeeStatus;
   total: number;
   createdAt: Date;
 };
@@ -32,9 +38,10 @@ function startOfToday(): Date {
 }
 
 function buildOrderWhere(params: AdminOrderListParams): Prisma.OrderWhereInput {
-  const { q, status = 'ALL', date = 'all' } = params;
+  const { q, status = 'ALL', date = 'all', delivery = 'ALL' } = params;
   const where: Prisma.OrderWhereInput = {};
   if (status !== 'ALL') where.status = status;
+  if (delivery !== 'ALL') where.deliveryFeeStatus = delivery;
 
   if (date === 'today') {
     where.createdAt = { gte: startOfToday() };
@@ -50,7 +57,8 @@ function buildOrderWhere(params: AdminOrderListParams): Prisma.OrderWhereInput {
     where.OR = [
       { orderNumber: { contains: term, mode: 'insensitive' } },
       { customerName: { contains: term, mode: 'insensitive' } },
-      { customerPhone: { contains: phoneTerm.length >= 3 ? phoneTerm : term } }
+      { customerPhone: { contains: phoneTerm.length >= 3 ? phoneTerm : term } },
+      { customerWhatsappPhone: { contains: phoneTerm.length >= 3 ? phoneTerm : term } }
     ];
   }
   return where;
@@ -68,10 +76,14 @@ export async function getAdminOrders(params: AdminOrderListParams = {}): Promise
     orderNumber: order.orderNumber,
     customerName: order.customerName,
     customerPhone: order.customerPhone,
+    customerWhatsappPhone: order.customerWhatsappPhone ?? undefined,
     city: order.city,
     area: order.area,
     status: order.status,
     itemCount: order._count.items,
+    subtotal: decimalToNumber(order.subtotal),
+    deliveryFee: decimalToNumber(order.deliveryFee),
+    deliveryFeeStatus: order.deliveryFeeStatus,
     total: decimalToNumber(order.total),
     createdAt: order.createdAt
   }));
@@ -82,11 +94,13 @@ export type OrderExportRow = {
   status: OrderStatus;
   customerName: string;
   customerPhone: string;
+  customerWhatsappPhone?: string;
   city: string;
   area: string;
   address: string;
   subtotal: number;
   deliveryFee: number;
+  deliveryFeeStatus: DeliveryFeeStatus;
   discount: number;
   total: number;
   paymentMethod: string;
@@ -105,11 +119,13 @@ export async function getOrdersForExport(params: AdminOrderListParams = {}): Pro
     status: order.status,
     customerName: order.customerName,
     customerPhone: order.customerPhone,
+    customerWhatsappPhone: order.customerWhatsappPhone ?? undefined,
     city: order.city,
     area: order.area,
     address: order.address,
     subtotal: decimalToNumber(order.subtotal),
     deliveryFee: decimalToNumber(order.deliveryFee),
+    deliveryFeeStatus: order.deliveryFeeStatus,
     discount: decimalToNumber(order.discount),
     total: decimalToNumber(order.total),
     paymentMethod: order.paymentMethod,
@@ -124,6 +140,7 @@ export type AdminOrderDetail = {
   status: OrderStatus;
   customerName: string;
   customerPhone: string;
+  customerWhatsappPhone?: string;
   city: string;
   area: string;
   address: string;
@@ -140,6 +157,7 @@ export type AdminOrderDetail = {
   packingSlipPrintCount: number;
   subtotal: number;
   deliveryFee: number;
+  deliveryFeeStatus: DeliveryFeeStatus;
   discount: number;
   total: number;
   createdAt: Date;
@@ -170,6 +188,7 @@ export async function getAdminOrderById(id: string): Promise<AdminOrderDetail | 
     status: order.status,
     customerName: order.customerName,
     customerPhone: order.customerPhone,
+    customerWhatsappPhone: order.customerWhatsappPhone ?? undefined,
     city: order.city,
     area: order.area,
     address: order.address,
@@ -186,6 +205,7 @@ export async function getAdminOrderById(id: string): Promise<AdminOrderDetail | 
     packingSlipPrintCount: order.packingSlipPrintCount,
     subtotal: decimalToNumber(order.subtotal),
     deliveryFee: decimalToNumber(order.deliveryFee),
+    deliveryFeeStatus: order.deliveryFeeStatus,
     discount: decimalToNumber(order.discount),
     total: decimalToNumber(order.total),
     createdAt: order.createdAt,

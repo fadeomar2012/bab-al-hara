@@ -1,9 +1,10 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { Prisma, type OrderStatus } from '@prisma/client';
+import { Prisma, type DeliveryFeeStatus, type OrderStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/features/admin/auth/admin-auth';
+import { calcOrderTotals, roundMoney } from '@/features/orders/order-pricing';
 import { isAllowedTransition, STATUS_TIMESTAMP_FIELD } from './order-admin.validation';
 
 export type OrderActionResult = { ok: true } | { ok: false; message: string };
@@ -45,13 +46,17 @@ export async function updateOrderStatusAction(orderId: string, toStatus: OrderSt
       // Lock the order row before checking the current status. This makes status
       // transitions and stock restoration idempotent under double-clicks or two admins.
       await lockOrderForUpdate(tx, orderId);
-      const order = await tx.order.findUnique({ where: { id: orderId }, select: { id: true, status: true, orderNumber: true } });
+      const order = await tx.order.findUnique({ where: { id: orderId }, select: { id: true, status: true, orderNumber: true, deliveryFeeStatus: true } });
       if (!order) throw new OrderTransitionAbort('Order not found.');
 
       const fromStatus = order.status;
       if (fromStatus === toStatus) throw new OrderTransitionAbort('Order is already in that status.');
       if (!isAllowedTransition(fromStatus, toStatus)) {
         throw new OrderTransitionAbort(`Cannot move an order from ${fromStatus} to ${toStatus}.`);
+      }
+
+      if (toStatus === 'SHIPPED' && order.deliveryFeeStatus === 'PENDING') {
+        throw new OrderTransitionAbort('يجب تحديد سعر التوصيل أو اختياره مجانياً قبل تحويل الطلب إلى تم الشحن.');
       }
 
       if (toStatus === 'CANCELED') {
@@ -124,6 +129,70 @@ export async function updateOrderStatusAction(orderId: string, toStatus: OrderSt
 
   revalidateOrder(orderId);
   if (toStatus === 'CANCELED') revalidateStorefrontProducts(affectedProductSlugs, affectedCategorySlugs);
+  return { ok: true };
+}
+
+export type DeliveryFeeActionResult = { ok: true } | { ok: false; message: string };
+
+export async function updateOrderDeliveryFeeAction(
+  orderId: string,
+  input: { mode: 'SET' | 'FREE'; fee?: number | string }
+): Promise<DeliveryFeeActionResult> {
+  await requireAdmin();
+
+  const mode = input.mode;
+  const parsedFee = typeof input.fee === 'string' ? Number(input.fee) : Number(input.fee ?? 0);
+  const nextFee = mode === 'FREE' ? 0 : roundMoney(parsedFee);
+
+  if (mode !== 'SET' && mode !== 'FREE') {
+    return { ok: false, message: 'طريقة تحديد التوصيل غير صحيحة.' };
+  }
+
+  if (!Number.isFinite(nextFee) || nextFee < 0) {
+    return { ok: false, message: 'أدخل سعر توصيل صحيحاً.' };
+  }
+
+  if (mode === 'SET' && nextFee <= 0) {
+    return { ok: false, message: 'أدخل سعر توصيل أكبر من صفر، أو اختر اعتماد توصيل مجاني.' };
+  }
+
+  if (nextFee > 9999) {
+    return { ok: false, message: 'سعر التوصيل كبير جداً. يرجى مراجعة القيمة.' };
+  }
+
+  const nextStatus: DeliveryFeeStatus = mode === 'FREE' ? 'FREE' : 'SET';
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      await lockOrderForUpdate(tx, orderId);
+      const order = await tx.order.findUnique({
+        where: { id: orderId },
+        select: { id: true, status: true, subtotal: true, discount: true }
+      });
+      if (!order) throw new OrderTransitionAbort('Order not found.');
+      if (order.status === 'CANCELED') {
+        throw new OrderTransitionAbort('لا يمكن تعديل سعر التوصيل لطلب ملغي.');
+      }
+      if (order.status === 'SHIPPED' || order.status === 'DELIVERED') {
+        throw new OrderTransitionAbort('لا يمكن تعديل سعر التوصيل بعد الشحن أو التسليم.');
+      }
+
+      const totals = calcOrderTotals(order.subtotal.toNumber(), order.discount.toNumber(), nextFee);
+      await tx.order.update({
+        where: { id: orderId },
+        data: {
+          deliveryFee: totals.deliveryFee,
+          deliveryFeeStatus: nextStatus,
+          total: totals.total
+        }
+      });
+    });
+  } catch (error) {
+    if (error instanceof OrderTransitionAbort) return { ok: false, message: error.message };
+    throw error;
+  }
+
+  revalidateOrder(orderId);
   return { ok: true };
 }
 

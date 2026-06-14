@@ -7,6 +7,8 @@ import { OrderStatusBadge } from '@/components/admin/OrderStatusBadge';
 import { OrderStatusActions } from '@/components/admin/OrderStatusActions';
 import { OrderOperations } from '@/components/admin/OrderOperations';
 import { OrderNotesForm } from '@/components/admin/OrderNotesForm';
+import { OrderDeliveryFeeForm } from '@/components/admin/OrderDeliveryFeeForm';
+import { OrderWorkflowChecklist } from '@/components/admin/OrderWorkflowChecklist';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,9 +19,10 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
 
   const summaryText = [
     `الطلب ${order.orderNumber} (${STATUS_LABEL_AR[order.status]})`,
-    `${order.customerName} · ${order.customerPhone}`,
+    `${order.customerName} · ${order.customerPhone}${order.customerWhatsappPhone ? ` · واتساب: ${order.customerWhatsappPhone}` : ''}`,
     `${order.city} · ${order.area} · ${order.address}`,
     ...order.items.map((item) => `- ${item.productName} ×${item.quantity} = ${formatCurrency(item.total)}`),
+    `التوصيل: ${order.deliveryFeeStatus === 'PENDING' ? 'بانتظار التحديد' : order.deliveryFeeStatus === 'FREE' ? 'مجاني' : formatCurrency(order.deliveryFee)}`,
     `الإجمالي (الدفع عند الاستلام): ${formatCurrency(order.total)}`
   ].join('\n');
 
@@ -34,9 +37,26 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       </div>
 
       <div className="adminCard">
+        <div className="adminCardHeader">
+          <div>
+            <h2>خط سير الطلب</h2>
+            <p>اتبع الخطوات بالترتيب حتى لا تُطبع فاتورة أو يشحن طلب قبل تحديد التوصيل.</p>
+          </div>
+        </div>
+        <OrderWorkflowChecklist
+          status={order.status}
+          deliveryFeeStatus={order.deliveryFeeStatus}
+          deliveryFee={order.deliveryFee}
+          isPacked={order.isPacked}
+        />
+      </div>
+
+      <div className="adminCard">
         <div className="adminCardHeader"><h2>العمليات</h2></div>
         <OrderOperations
           orderId={order.id}
+          status={order.status}
+          deliveryFeeStatus={order.deliveryFeeStatus}
           isPacked={order.isPacked}
           invoicePrintCount={order.invoicePrintCount}
           packingSlipPrintCount={order.packingSlipPrintCount}
@@ -46,7 +66,19 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
 
       <div className="adminCard">
         <div className="adminCardHeader"><h2>تحديث الحالة</h2></div>
-        <OrderStatusActions orderId={order.id} status={order.status} />
+        <OrderStatusActions orderId={order.id} status={order.status} deliveryFeeStatus={order.deliveryFeeStatus} />
+      </div>
+
+      <div className="adminCard">
+        <div className="adminCardHeader"><h2>تحديد سعر التوصيل</h2></div>
+        <OrderDeliveryFeeForm
+          orderId={order.id}
+          status={order.status}
+          deliveryFee={order.deliveryFee}
+          deliveryFeeStatus={order.deliveryFeeStatus}
+          subtotal={order.subtotal}
+          total={order.total}
+        />
       </div>
 
       <div className="adminCard">
@@ -64,6 +96,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         <div className="adminFormGrid two">
           <div className="adminField"><span className="adminFieldLabel">الاسم</span><div>{order.customerName}</div></div>
           <div className="adminField"><span className="adminFieldLabel">الهاتف</span><div>{order.customerPhone}</div></div>
+          <div className="adminField"><span className="adminFieldLabel">واتساب</span><div>{order.customerWhatsappPhone ?? 'نفس رقم الجوال / غير محدد'}</div></div>
           <div className="adminField"><span className="adminFieldLabel">المدينة</span><div>{order.city}</div></div>
           <div className="adminField"><span className="adminFieldLabel">المنطقة</span><div>{order.area}</div></div>
           <div className="adminField spanTwo"><span className="adminFieldLabel">العنوان</span><div>{order.address}</div></div>
@@ -99,9 +132,9 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         </div>
         <div className="summaryDivider" style={{ margin: '14px 0' }} />
         <div className="adminTotalsRow"><span>المجموع الفرعي</span><strong>{formatCurrency(order.subtotal)}</strong></div>
-        <div className="adminTotalsRow"><span>التوصيل</span><strong>{order.deliveryFee === 0 ? 'مجاني' : formatCurrency(order.deliveryFee)}</strong></div>
+        <div className="adminTotalsRow"><span>التوصيل</span><strong>{order.deliveryFeeStatus === 'PENDING' ? 'بانتظار التحديد' : order.deliveryFeeStatus === 'FREE' ? 'مجاني' : formatCurrency(order.deliveryFee)}</strong></div>
         {order.discount > 0 && <div className="adminTotalsRow"><span>الخصم</span><strong>−{formatCurrency(order.discount)}</strong></div>}
-        <div className="adminTotalsRow grand"><span>الإجمالي (الدفع عند الاستلام)</span><strong>{formatCurrency(order.total)}</strong></div>
+        <div className="adminTotalsRow grand"><span>{order.deliveryFeeStatus === 'PENDING' ? 'الإجمالي قبل التوصيل' : 'الإجمالي (الدفع عند الاستلام)'}</span><strong>{formatCurrency(order.total)}</strong></div>
       </div>
 
       <div className="adminCard">

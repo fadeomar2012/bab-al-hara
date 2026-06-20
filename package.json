@@ -19,7 +19,8 @@
     "db:backfill-sold-count": "tsx scripts/backfill-sold-count.ts",
     "db:audit-commerce": "tsx scripts/audit-commerce-integrity.ts",
     "db:backfill-delivery-fee-status": "tsx scripts/backfill-delivery-fee-status.ts",
-    "db:backfill-inventory-ledger": "tsx scripts/backfill-inventory-ledger.ts"
+    "db:backfill-inventory-ledger": "tsx scripts/backfill-inventory-ledger.ts",
+    "telegram:test": "tsx scripts/test-telegram.ts"
   },
   "dependencies": {
     "@prisma/client": "6.19.0",

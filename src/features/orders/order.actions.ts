@@ -8,6 +8,7 @@ import { lockVariantsForUpdate } from './order-stock';
 import { calcLineTotal, calcOrderTotals, roundMoney } from './order-pricing';
 import { buildOrderNumber, orderNumberDatePrefix } from './order-number';
 import { getOrderByNumberAndPhone } from './order.queries';
+import { notifyAdminAboutNewOrder } from './order-notifications';
 import type { CheckoutInput, CreateOrderResult, OrderStockError, OrderView } from './order.types';
 
 /** Internal error used to abort the transaction and surface stock problems. */
@@ -229,6 +230,13 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
       revalidatePath('/category/sale');
       for (const slug of result.categorySlugs) revalidatePath(`/category/${slug}`);
       for (const slug of result.productSlugs) revalidatePath(`/product/${slug}`);
+
+      try {
+        await notifyAdminAboutNewOrder(result.orderId);
+      } catch (notificationError) {
+        console.error('notifyAdminAboutNewOrder failed', notificationError);
+      }
+
       return { ok: true, orderNumber: result.orderNumber, orderId: result.orderId, total: result.total };
     } catch (error) {
       if (error instanceof StockAbort) {

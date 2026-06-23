@@ -17,7 +17,7 @@ export function PrintablePackingSlip({
         <div className="printBrand">
           <span className="printBrandMark"><BrandMark size={34} /></span>
           <div>
-            <strong>باب الحارة</strong>
+            <strong>سعد سنتر</strong>
             <span>ورقة تجهيز الطلب</span>
           </div>
         </div>

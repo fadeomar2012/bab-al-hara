@@ -64,7 +64,7 @@ export async function notifyAdminAboutNewOrder(orderId: string): Promise<void> {
     .join('\n');
 
   const text = [
-    '🧾 طلب جديد - باب الحارة',
+    '🧾 طلب جديد - سعد سنتر',
     '',
     `رقم الطلب: ${order.orderNumber}`,
     `العميل: ${order.customerName}`,

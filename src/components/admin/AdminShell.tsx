@@ -76,7 +76,7 @@ export function AdminShell({
             ☰
           </button>
           <div className="adminTopbarTitle">
-            <span>باب الحارة</span>
+            <span>سعد سنتر</span>
             <strong>{title}</strong>
           </div>
           <div className="adminTopbarRight">

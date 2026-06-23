@@ -116,7 +116,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
       <ProductMediaGallery images={product.images} title={product.name} />
       <section className="productDetailPanel">
         <div className="productDetailHeader">
-          <span className="eyebrow">Bab Al Hara Pick</span>
+          <span className="eyebrow">Saad Center Pick</span>
           <h1>{product.name}</h1>
           <p>{product.subtitle}</p>
           <div className="detailRating">

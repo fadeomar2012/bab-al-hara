@@ -19,7 +19,7 @@ import {
 // ── Static content (placeholder business data — swap for real values later) ──
 const WHATSAPP_NUMBER = '970590000000';
 const PHONE_DISPLAY = '+970 59 000 0000';
-const EMAIL = 'hello@bab-al-hara.com';
+// Email contact replaced with WhatsApp — old domain no longer applies.
 
 const trustItems = [
   { Icon: IconTruck, title: 'توصيل سريع داخل غزة', subtitle: 'Fast Local Delivery' },
@@ -105,7 +105,7 @@ export function Footer() {
 
   return (
     <footer className="siteFooter" aria-labelledby="siteFooterHeading">
-      <h2 id="siteFooterHeading" className="srOnly">معلومات المتجر وروابط باب الحارة</h2>
+      <h2 id="siteFooterHeading" className="srOnly">معلومات المتجر وروابط سعد سنتر</h2>
 
       {/* 1 · Trust / brand-promise strip */}
       <div className="footerTrustStrip">
@@ -133,11 +133,11 @@ export function Footer() {
               <span className="footerGlow" aria-hidden="true" />
               <BrandLogo variant="full" />
               <p className="footerBrandDesc">
-                باب الحارة متجر عصري للموضة والإكسسوارات والهدايا المختارة بعناية، بتجربة
-                تسوق سهلة وتغليف يليق بكل مناسبة.
+                سعد سنتر — وجهتك لمستحضرات التجميل والعطور والعناية وتجهيز العرائس، بتجربة
+                تسوق سهلة ومنتجات مختارة بعناية لكل مناسبة.
               </p>
               <p className="footerBrandEn">
-                Curated fashion, accessories, and gifts with a warm boutique shopping experience.
+                Your destination for cosmetics, fragrances, skincare and bridal prep — curated with care.
               </p>
               <Link className="footerBadge" href="/category/new-in">
                 <IconSparkle size={15} />
@@ -216,7 +216,14 @@ export function Footer() {
                 </li>
                 <li>
                   <span className="footerContactIcon" aria-hidden="true"><IconMail size={18} /></span>
-                  <a className="footerContactLink" href={`mailto:${EMAIL}`} dir="ltr">{EMAIL}</a>
+                  <a
+                    className="footerContactLink"
+                    href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    للطلب والاستفسار تواصلوا معنا عبر واتساب
+                  </a>
                 </li>
                 <li>
                   <span className="footerContactIcon" aria-hidden="true"><IconClock size={18} /></span>
@@ -279,9 +286,9 @@ export function Footer() {
         {/* 8 · Bottom bar */}
         <div className="footerBottom">
           <div className="footerBottomInner">
-            <p className="footerCopy">© 2026 Bab Al Hara. جميع الحقوق محفوظة.</p>
-            <p className="footerTagline">Designed for a modern boutique shopping experience.</p>
-            <p className="footerCredit">Crafted with care for Bab Al Hara</p>
+            <p className="footerCopy">© 2026 Saad Center. جميع الحقوق محفوظة.</p>
+            <p className="footerTagline">سعد سنتر — لمستحضرات التجميل وتجهيز العرائس.</p>
+            <p className="footerCredit">Crafted with care for Saad Center</p>
           </div>
         </div>
       </div>

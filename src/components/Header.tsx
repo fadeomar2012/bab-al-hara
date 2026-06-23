@@ -33,7 +33,7 @@ export function Header() {
   return (
     <>
       <header className="siteHeader">
-        <div className="headerNotice">الدفع عند الاستلام متاح الآن · تشكيلة جديدة وصلت باب الحارة · عروض مختارة لفترة محدودة</div>
+        <div className="headerNotice">الدفع عند الاستلام متاح الآن · مستحضرات تجميل وتجهيز عرائس من سعد سنتر · عروض مختارة لفترة محدودة</div>
         <div className="headerTop">
           <button
             className="iconButton mobileMenuBtn"
@@ -44,7 +44,7 @@ export function Header() {
           >
             <IconMenu size={20} />
           </button>
-          <Link href="/" className="brandLink" aria-label="باب الحارة الرئيسية">
+          <Link href="/" className="brandLink" aria-label="سعد سنتر الرئيسية">
             <BrandLogo variant="header" />
           </Link>
           <SearchBar compact />

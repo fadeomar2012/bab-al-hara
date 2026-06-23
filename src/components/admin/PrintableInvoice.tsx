@@ -18,8 +18,8 @@ export function PrintableInvoice({
         <div className="printBrand">
           <span className="printBrandMark"><BrandMark size={34} /></span>
           <div>
-            <strong>باب الحارة</strong>
-            <span>Bab Al Hara Boutique</span>
+            <strong>سعد سنتر</strong>
+            <span>Saad Center — لمستحضرات التجميل وتجهيز العرائس</span>
           </div>
         </div>
         <div className="printDocMeta">
@@ -81,7 +81,7 @@ export function PrintableInvoice({
 
       <footer className="printFooter">
         <p>الدفع عند الاستلام · يرجى التأكد من محتويات الطلب عند الاستلام.</p>
-        <p>شكراً لتسوقك من باب الحارة 🤎</p>
+        <p>شكراً لتسوقك من سعد سنتر 🌸</p>
       </footer>
     </div>
   );

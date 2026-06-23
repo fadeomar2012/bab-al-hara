@@ -10,6 +10,7 @@
       <stop offset="1" stop-color="#7E1C2F"/>
     </linearGradient>
   </defs>
+  <!-- soft blush disc + rose ring (mirrors reference 2) -->
   <circle cx="100" cy="100" r="96" fill="#FCF3F5"/>
   <circle cx="100" cy="100" r="92" fill="none" stroke="#E2AEB8" stroke-width="6"/>
   <g transform="translate(20.9,-14) scale(0.85)">

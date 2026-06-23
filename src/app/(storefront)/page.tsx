@@ -51,11 +51,13 @@ export default async function HomePage() {
       </section>
 
       <section className="boutiqueBand">
-        <div className="logoMedallion small">باب<br />الحارة</div>
+        <div className="logoMedallion small">
+          <img src="/brand/saad-center/svg/saad-icon-badge.svg" alt="" width={56} height={56} style={{ objectFit: 'contain' }} />
+        </div>
         <div>
-          <span className="eyebrow">Original identity</span>
-          <h2>Marketplace سريع، لكن بإحساس Boutique</h2>
-          <p>كثافة منتجات وتجربة شراء سهلة، مع ألوان بيج وكاميل وبني ولمسات ذهبية ناعمة مستوحاة من هوية باب الحارة.</p>
+          <span className="eyebrow">Saad Center Beauty & Bridal</span>
+          <h2>تسوّق سهل بتجربة بوتيك راقية</h2>
+          <p>مستحضرات تجميل وعطور وتجهيز عرائس مختارة بعناية، مع تجربة دفع عند الاستلام وتغليف أنيق لكل مناسبة.</p>
         </div>
       </section>
 
@@ -85,7 +87,7 @@ export default async function HomePage() {
         <div className="sectionHeader">
           <div>
             <span className="eyebrow">Featured collection</span>
-            <h2>مختارات باب الحارة</h2>
+            <h2>مختارات سعد سنتر</h2>
           </div>
           <Link href="/category/accessories">اكتشفي المزيد</Link>
         </div>

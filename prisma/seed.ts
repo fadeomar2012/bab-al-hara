@@ -11,7 +11,7 @@ const prisma = new PrismaClient();
 async function seedAdminUser() {
   const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const password = process.env.ADMIN_PASSWORD;
-  const name = process.env.ADMIN_NAME?.trim() || 'Bab Al Hara Admin';
+  const name = process.env.ADMIN_NAME?.trim() || 'Saad Center Admin';
 
   if (!email || !password) {
     console.log('ADMIN_EMAIL/ADMIN_PASSWORD not set, skipping admin user seed.');
@@ -77,8 +77,8 @@ const products: ProductSeed[] = [
     slug: 'camel-boutique-bag',
     subtitle: 'جلد ناعم • عملية وأنيقة',
     description: 'شنطة يومية بلون كاميل دافئ، مناسبة للخروجات السريعة والإطلالات الراقية.',
-    details: ['مساحة داخلية مرتبة', 'سير قابل للتعديل', 'لون كاميل قريب من هوية باب الحارة'],
-    brand: 'Bab Al Hara Select',
+    details: ['مساحة داخلية مرتبة', 'سير قابل للتعديل', 'لون كاميل دافئ من مجموعة سعد سنتر'],
+    brand: 'Saad Center Select',
     basePrice: 89,
     compareAtPrice: 119,
     isFeatured: true,
@@ -166,7 +166,7 @@ const products: ProductSeed[] = [
     name: 'مجموعة مكياج يومية',
     slug: 'daily-makeup-kit',
     subtitle: 'ألوان ترابية • مناسبة لكل يوم',
-    description: 'مجموعة مكياج صغيرة للاستخدام اليومي بألوان دافئة متناسقة مع هوية باب الحارة.',
+    description: 'مجموعة مكياج صغيرة للاستخدام اليومي بألوان دافئة متناسقة مناسبة لجميع الإطلالات.',
     details: ['ألوان ناعمة', 'سهلة الحمل', 'مناسبة كهدية صغيرة'],
     basePrice: 54,
     compareAtPrice: 72,
@@ -546,9 +546,9 @@ async function main() {
   await prisma.banner.createMany({
     data: [
       {
-        title: 'إطلالتك تبدأ من باب الحارة',
-        subtitle: 'شنط، عطور، مكياج وإكسسوارات مختارة بذوق دافئ وبالدفع عند الاستلام.',
-        eyebrow: 'Bab Al Hara Boutique Market',
+        title: 'جمالك يبدأ من سعد سنتر',
+        subtitle: 'مستحضرات تجميل، عطور، عناية وإكسسوارات مختارة بعناية مع لمسات خاصة لتجهيز العرائس.',
+        eyebrow: 'Saad Center Beauty & Bridal',
         imageUrl: '/mock-products/bag-camel.svg',
         href: '/category/new-in',
         ctaLabel: 'تسوّقي الآن',

@@ -8,7 +8,7 @@ export const virtualCategories: Record<string, CatalogCategory> = {
     id: 'virtual-new-in',
     name: 'وصل حديثاً',
     slug: 'new-in',
-    description: 'أحدث القطع المختارة من باب الحارة: شنط، عطور، مكياج وإكسسوارات دافئة.',
+    description: 'أحدث المنتجات المختارة من سعد سنتر: مستحضرات تجميل، عطور، عناية وإكسسوارات.',
     imageUrl: '/mock-products/gift-box.svg',
     isVirtual: true
   },

@@ -7,7 +7,7 @@ import { BrandLogo } from '@/components/BrandLogo';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'تسجيل الدخول · باب الحارة'
+  title: 'تسجيل الدخول · سعد سنتر'
 };
 
 export default async function AdminLoginPage() {
@@ -19,8 +19,8 @@ export default async function AdminLoginPage() {
       <div className="adminLoginShell">
         <div className="adminLoginCard">
           <BrandLogo variant="full" subtitle="لوحة الإدارة" style={{ justifyContent: 'center', marginBottom: 16 }} />
-          <h1>إدارة باب الحارة</h1>
-          <p className="adminMuted">سجّل الدخول لإدارة كتالوج باب الحارة.</p>
+          <h1>إدارة سعد سنتر</h1>
+          <p className="adminMuted">سجّل الدخول لإدارة كتالوج سعد سنتر.</p>
           <LoginForm />
         </div>
       </div>

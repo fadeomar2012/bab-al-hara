@@ -41,9 +41,9 @@ export default async function CategoryPage({
   return (
     <div className="categoryPage">
       <section className="categoryHero">
-        <span className="eyebrow">تصنيفات باب الحارة</span>
+        <span className="eyebrow">تصنيفات سعد سنتر</span>
         <h1>{query ? `نتائج البحث: ${query}` : result.category.name}</h1>
-        <p>{query ? 'منتجات مطابقة من كتالوج باب الحارة.' : result.category.description}</p>
+        <p>{query ? 'منتجات مطابقة من كتالوج سعد سنتر.' : result.category.description}</p>
       </section>
       <CategoryStrip categories={result.categories} activeSlug={slug} />
       <form className="filterRow" action={`/category/${slug}`}>

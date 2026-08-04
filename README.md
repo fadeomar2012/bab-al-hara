@@ -159,3 +159,7 @@ is already allowed in `next.config.mjs` for remote images.
 ## QA status
 
 Sprint 7 build. Checkout, orders, inventory, invoices, packing slips, and CSV export are real and functional. Sprint 7 adds signed, admin-protected Cloudinary image uploads for products and banners (manual image URLs still work as a fallback). Customer accounts and a wishlist are intentionally **not** part of this sprint.
+
+## White-label demo identities
+
+The storefront supports selectable brand profiles while reusing the same application, demo database and Cloudinary account. Set `NEXT_PUBLIC_STORE_BRAND` to `saad`, `bab-al-hara`, or `oppeh`. See `docs/BRAND_PROFILES.md` for the profile structure, shared-database banner behavior and asset checklist.

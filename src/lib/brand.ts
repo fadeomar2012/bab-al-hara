@@ -1,29 +1,17 @@
-export const brand = {
-  name: 'سعد سنتر',
-  englishName: 'Saad Center',
-  tagline: 'لمستحضرات التجميل وتجهيز العرائس',
-  title: 'سعد سنتر — مستحضرات تجميل وتجهيز عرائس',
-  description: 'سعد سنتر — متجرك لمستحضرات التجميل والعناية والعطور وتجهيز العرائس بجودة مختارة.',
-  logo: {
-    full: '/brand/saad-center/svg/saad-full.svg',
-    header: '/brand/saad-center/svg/saad-header.svg',
-    icon: '/brand/saad-center/svg/saad-icon.svg',
-    iconBadge: '/brand/saad-center/svg/saad-icon-badge.svg',
-    monoBurgundy: '/brand/saad-center/svg/saad-mono-burgundy.svg',
-    monoWhite: '/brand/saad-center/svg/saad-mono-white.svg',
-  },
-  colors: {
-    bg: '#FFF7FA',
-    surface: '#FFFFFF',
-    section: '#F9E3EA',
-    border: '#EBC9D4',
-    gold: '#CBA85C',
-    goldDark: '#9E7A2E',
-    burgundy: '#8B1E33',
-    burgundyHover: '#7A1A2C',
-    blush: '#F3C9D7',
-    blushSoft: '#FFF0F5',
-    ink: '#2C2426',
-    muted: '#7A626A',
-  },
-} as const;
+/**
+ * Compatibility entry point for the active white-label store brand.
+ * Add/edit brand profiles under src/config/brands and select one with:
+ * NEXT_PUBLIC_STORE_BRAND=saad | bab-al-hara | obbeh | madar
+ */
+export {
+  activeBrandKey,
+  availableBrands,
+  brand,
+  getBrandCssVariables
+} from '@/config/brands';
+export type {
+  BrandAssets,
+  BrandColors,
+  BrandKey,
+  BrandProfile
+} from '@/config/brands';

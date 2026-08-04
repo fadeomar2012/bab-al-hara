@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logoutAction } from '@/features/admin/auth/admin-actions';
 import { BrandLogo } from '@/components/BrandLogo';
+import { brand } from '@/lib/brand';
 
 type NavItem = { href: string; label: string; icon: React.ReactNode; exact?: boolean };
 
@@ -76,7 +77,7 @@ export function AdminShell({
             ☰
           </button>
           <div className="adminTopbarTitle">
-            <span>سعد سنتر</span>
+            <span>{brand.name}</span>
             <strong>{title}</strong>
           </div>
           <div className="adminTopbarRight">

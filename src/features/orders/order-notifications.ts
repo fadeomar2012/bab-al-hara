@@ -3,6 +3,7 @@ import 'server-only';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { sendTelegramMessage } from '@/lib/telegram';
+import { brand } from '@/lib/brand';
 import { decimalToNumber } from './order.mappers';
 import type { VariantSnapshot } from './order.types';
 
@@ -64,7 +65,7 @@ export async function notifyAdminAboutNewOrder(orderId: string): Promise<void> {
     .join('\n');
 
   const text = [
-    '🧾 طلب جديد - سعد سنتر',
+    `🧾 طلب جديد - ${brand.name}`,
     '',
     `رقم الطلب: ${order.orderNumber}`,
     `العميل: ${order.customerName}`,

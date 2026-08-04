@@ -4,6 +4,7 @@ import { ClearableSearchInput } from '@/components/ClearableSearchInput';
 import { ProductGrid } from '@/components/ProductGrid';
 import { getProductsByCategorySlug } from '@/features/catalog/catalog.queries';
 import { normalizeCatalogFilters } from '@/features/catalog/catalog.filters';
+import { brand } from '@/lib/brand';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,9 +42,9 @@ export default async function CategoryPage({
   return (
     <div className="categoryPage">
       <section className="categoryHero">
-        <span className="eyebrow">تصنيفات سعد سنتر</span>
+        <span className="eyebrow">{brand.copy.categoryEyebrow}</span>
         <h1>{query ? `نتائج البحث: ${query}` : result.category.name}</h1>
-        <p>{query ? 'منتجات مطابقة من كتالوج سعد سنتر.' : result.category.description}</p>
+        <p>{query ? brand.copy.categorySearchDescription : result.category.description}</p>
       </section>
       <CategoryStrip categories={result.categories} activeSlug={slug} />
       <form className="filterRow" action={`/category/${slug}`}>

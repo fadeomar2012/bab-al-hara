@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { brand } from '@/lib/brand';
 import { useCart } from './CartProvider';
 import { BrandLogo } from './BrandLogo';
 import { IconCart, IconMenu } from './Icons';
@@ -33,7 +34,7 @@ export function Header() {
   return (
     <>
       <header className="siteHeader">
-        <div className="headerNotice">الدفع عند الاستلام متاح الآن · مستحضرات تجميل وتجهيز عرائس من سعد سنتر · عروض مختارة لفترة محدودة</div>
+        <div className="headerNotice">{brand.copy.announcement}</div>
         <div className="headerTop">
           <button
             className="iconButton mobileMenuBtn"
@@ -44,7 +45,7 @@ export function Header() {
           >
             <IconMenu size={20} />
           </button>
-          <Link href="/" className="brandLink" aria-label="سعد سنتر الرئيسية">
+          <Link href="/" className="brandLink" aria-label={`${brand.name} الرئيسية`}>
             <BrandLogo variant="header" />
           </Link>
           <SearchBar compact />

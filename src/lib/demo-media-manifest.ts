@@ -1,3 +1,5 @@
+import { brand } from './brand';
+
 /**
  * Demo media manifest — the single source of truth that maps each seeded
  * product / category / banner to its license-safe source image(s) on Pexels.
@@ -169,7 +171,7 @@ export const DEMO_CATEGORY_MEDIA: DemoCategoryMedia[] = [
 ];
 
 export const DEMO_BANNER_MEDIA: DemoBannerMedia[] = [
-  { key: 'home-hero', placement: 'HOME_HERO', pexelsUrl: 'https://www.pexels.com/photo/flat-lay-of-stylish-accessories-with-handbag-34027231/', alt: 'جمالك يبدأ من سعد سنتر' },
+  { key: 'home-hero', placement: 'HOME_HERO', pexelsUrl: 'https://www.pexels.com/photo/flat-lay-of-stylish-accessories-with-handbag-34027231/', alt: brand.copy.heroTitle },
   { key: 'home-promo', placement: 'HOME_PROMO', pexelsUrl: 'https://www.pexels.com/photo/elegant-perfume-gift-box-presentation-30999236/', alt: 'عروض مختارة لفترة محدودة' }
 ];
 

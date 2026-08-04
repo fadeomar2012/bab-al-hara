@@ -4,6 +4,8 @@ import { HeroBanner } from '@/components/HeroBanner';
 import { ProductGrid } from '@/components/ProductGrid';
 import { PromoBanner } from '@/components/PromoBanner';
 import { getHomeCatalog } from '@/features/catalog/catalog.queries';
+import { brand } from '@/lib/brand';
+import { BrandLogo } from '@/components/BrandLogo';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,12 +54,12 @@ export default async function HomePage() {
 
       <section className="boutiqueBand">
         <div className="logoMedallion small">
-          <img src="/brand/saad-center/svg/saad-icon-badge.svg" alt="" width={56} height={56} style={{ objectFit: 'contain' }} />
+          <BrandLogo variant="compact" />
         </div>
         <div>
-          <span className="eyebrow">Saad Center Beauty & Bridal</span>
-          <h2>تسوّق سهل بتجربة بوتيك راقية</h2>
-          <p>مستحضرات تجميل وعطور وتجهيز عرائس مختارة بعناية، مع تجربة دفع عند الاستلام وتغليف أنيق لكل مناسبة.</p>
+          <span className="eyebrow">{brand.copy.boutiqueEyebrow}</span>
+          <h2>{brand.copy.boutiqueTitle}</h2>
+          <p>{brand.copy.boutiqueDescription}</p>
         </div>
       </section>
 
@@ -87,7 +89,7 @@ export default async function HomePage() {
         <div className="sectionHeader">
           <div>
             <span className="eyebrow">Featured collection</span>
-            <h2>مختارات سعد سنتر</h2>
+            <h2>{brand.copy.featuredCollectionTitle}</h2>
           </div>
           <Link href="/category/accessories">اكتشفي المزيد</Link>
         </div>

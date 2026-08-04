@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Tajawal, El_Messiri } from 'next/font/google';
-import { brand } from '@/lib/brand';
+import { activeBrandKey, brand, getBrandCssVariables } from '@/lib/brand';
 import './globals.css';
 
 const tajawal = Tajawal({
@@ -18,21 +18,29 @@ const elMessiri = El_Messiri({
 });
 
 export const metadata: Metadata = {
-  title: brand.title,
-  description: brand.description,
+  title: brand.seo.title,
+  description: brand.seo.description,
+  applicationName: brand.englishName,
   icons: {
-    icon: '/brand/saad-center/png/favicon-32.png',
-    apple: '/brand/saad-center/png/favicon-180.png',
-  },
+    icon: brand.assets.favicon32 ?? '/icon.svg',
+    apple: brand.assets.appleTouchIcon ?? brand.assets.favicon32 ?? '/icon.svg'
+  }
 };
 
 export const viewport: Viewport = {
-  themeColor: brand.colors.burgundy,
+  themeColor: brand.colors.primary
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ar" dir="rtl" className={`${tajawal.variable} ${elMessiri.variable}`} data-scroll-behavior="smooth">
+    <html
+      lang="ar"
+      dir="rtl"
+      className={`${tajawal.variable} ${elMessiri.variable}`}
+      data-brand={activeBrandKey}
+      data-scroll-behavior="smooth"
+      style={getBrandCssVariables()}
+    >
       <body>{children}</body>
     </html>
   );

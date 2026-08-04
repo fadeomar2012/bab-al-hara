@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import type { Product } from '@/lib/types';
 import type { CatalogProductVariant } from '@/features/catalog/catalog.types';
 import { useCart } from './CartProvider';
+import { brand } from '@/lib/brand';
 import { Price } from './Price';
 import { ProductMediaGallery } from './ProductMediaGallery';
 import { QuantitySelector } from './QuantitySelector';
@@ -116,7 +117,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
       <ProductMediaGallery images={product.images} title={product.name} />
       <section className="productDetailPanel">
         <div className="productDetailHeader">
-          <span className="eyebrow">Saad Center Pick</span>
+          <span className="eyebrow">{brand.copy.productEyebrow}</span>
           <h1>{product.name}</h1>
           <p>{product.subtitle}</p>
           <div className="detailRating">

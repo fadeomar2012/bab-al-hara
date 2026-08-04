@@ -1,4 +1,5 @@
 import type { CatalogCategory, CatalogProduct, ProductStockState } from './catalog.types';
+import { brand } from '@/lib/brand';
 
 export const CURRENCY = '₪' as const;
 export const FALLBACK_PRODUCT_IMAGE = '/mock-products/gift-box.svg';
@@ -8,7 +9,7 @@ export const virtualCategories: Record<string, CatalogCategory> = {
     id: 'virtual-new-in',
     name: 'وصل حديثاً',
     slug: 'new-in',
-    description: 'أحدث المنتجات المختارة من سعد سنتر: مستحضرات تجميل، عطور، عناية وإكسسوارات.',
+    description: brand.copy.virtualNewInDescription,
     imageUrl: '/mock-products/gift-box.svg',
     isVirtual: true
   },

@@ -2,6 +2,7 @@ import { BrandMark } from '@/components/BrandLogo';
 import type { AdminOrderDetail } from '@/features/admin/orders/order-admin.queries';
 import { STATUS_LABEL_AR } from '@/features/admin/orders/order-admin.validation';
 import { formatCurrency, formatDateTime } from '@/features/admin/shared/admin-format';
+import { brand } from '@/lib/brand';
 
 export function PrintableInvoice({
   order,
@@ -18,8 +19,8 @@ export function PrintableInvoice({
         <div className="printBrand">
           <span className="printBrandMark"><BrandMark size={34} /></span>
           <div>
-            <strong>سعد سنتر</strong>
-            <span>Saad Center — لمستحضرات التجميل وتجهيز العرائس</span>
+            <strong>{brand.name}</strong>
+            <span>{brand.copy.invoiceSubtitle}</span>
           </div>
         </div>
         <div className="printDocMeta">
@@ -81,7 +82,7 @@ export function PrintableInvoice({
 
       <footer className="printFooter">
         <p>الدفع عند الاستلام · يرجى التأكد من محتويات الطلب عند الاستلام.</p>
-        <p>شكراً لتسوقك من سعد سنتر 🌸</p>
+        <p>{brand.copy.invoiceThanks}</p>
       </footer>
     </div>
   );

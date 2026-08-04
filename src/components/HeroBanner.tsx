@@ -2,13 +2,15 @@ import Link from 'next/link';
 import type { CatalogBanner } from '@/features/catalog/catalog.types';
 import { BANNER_IMAGE, getCloudinaryTransformedUrl } from '@/lib/cloudinary-image';
 import { brand } from '@/lib/brand';
+import { BrandLogo } from './BrandLogo';
 
 export function HeroBanner({ banner }: { banner?: CatalogBanner }) {
   const href = banner?.href ?? '/category/new-in';
-  const title = banner?.title ?? 'جمالك يبدأ من سعد سنتر';
-  const subtitle = banner?.subtitle ?? 'مستحضرات تجميل، عطور، عناية وإكسسوارات مختارة بعناية مع لمسات خاصة لتجهيز العرائس.';
-  const eyebrow = banner?.eyebrow ?? 'Saad Center Beauty & Bridal';
-  const ctaLabel = banner?.ctaLabel ?? 'تسوّقي الآن';
+  const useDatabaseCopy = brand.behavior.useDatabaseBannerCopy;
+  const title = useDatabaseCopy ? banner?.title ?? brand.copy.heroTitle : brand.copy.heroTitle;
+  const subtitle = useDatabaseCopy ? banner?.subtitle ?? brand.copy.heroSubtitle : brand.copy.heroSubtitle;
+  const eyebrow = useDatabaseCopy ? banner?.eyebrow ?? brand.copy.heroEyebrow : brand.copy.heroEyebrow;
+  const ctaLabel = useDatabaseCopy ? banner?.ctaLabel ?? brand.copy.heroCta : brand.copy.heroCta;
 
   return (
     <section className="heroBanner">
@@ -18,23 +20,21 @@ export function HeroBanner({ banner }: { banner?: CatalogBanner }) {
         <p>{subtitle}</p>
         <div className="heroActions">
           <Link href={href} className="primaryButton">{ctaLabel}</Link>
-          <Link href="/category/sale" className="ghostButton">شاهدي العروض</Link>
+          <Link href="/category/sale" className="ghostButton">{brand.copy.heroSecondaryCta}</Link>
         </div>
         <div className="heroTrustRow" aria-label="مميزات التسوق">
-          <span>دفع عند الاستلام</span>
-          <span>منتجات مختارة</span>
-          <span>تجهيز عرائس</span>
+          {brand.copy.heroTrustItems.map((item) => <span key={item}>{item}</span>)}
         </div>
       </div>
 
       <div className="heroCollage" aria-hidden="true">
         <div className="heroGlow" />
         <div className="logoMedallion">
-          <img src={brand.logo.iconBadge} alt="" width={72} height={72} style={{ objectFit: 'contain' }} />
+          <BrandLogo variant="compact" />
         </div>
         <div className="collageTile collageLarge">
           <img src={getCloudinaryTransformedUrl(banner?.imageUrl ?? '/mock-products/bag-camel.svg', BANNER_IMAGE)} alt="" />
-          <span>اختيارات سعد سنتر</span>
+          <span>{brand.copy.heroCollageLabel}</span>
         </div>
         <div className="collageTile collageSmallOne">
           <img src="https://images.pexels.com/photos/31823739/pexels-photo-31823739.jpeg?auto=compress&cs=tinysrgb&w=600" alt="" />

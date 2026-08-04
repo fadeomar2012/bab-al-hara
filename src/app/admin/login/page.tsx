@@ -3,11 +3,12 @@ import { redirect } from 'next/navigation';
 import { getAdminSession } from '@/features/admin/auth/admin-auth';
 import { LoginForm } from '@/components/admin/LoginForm';
 import { BrandLogo } from '@/components/BrandLogo';
+import { brand } from '@/lib/brand';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'تسجيل الدخول · سعد سنتر'
+  title: `تسجيل الدخول · ${brand.name}`
 };
 
 export default async function AdminLoginPage() {
@@ -19,8 +20,8 @@ export default async function AdminLoginPage() {
       <div className="adminLoginShell">
         <div className="adminLoginCard">
           <BrandLogo variant="full" subtitle="لوحة الإدارة" style={{ justifyContent: 'center', marginBottom: 16 }} />
-          <h1>إدارة سعد سنتر</h1>
-          <p className="adminMuted">سجّل الدخول لإدارة كتالوج سعد سنتر.</p>
+          <h1>إدارة {brand.name}</h1>
+          <p className="adminMuted">{brand.copy.adminCatalogDescription}</p>
           <LoginForm />
         </div>
       </div>
